@@ -43,12 +43,10 @@ export default class AssetPreloadScene extends Phaser.Scene {
     });
     // Add more assets as needed
 
-    // this.anims.create({
-    //   key: "spider_idle",
-    //   frames: this.anims.generateFrameNumbers("spider", { start: 0, end: 1 }),
-    //   frameRate: 10,
-    //   repeat: -1,
-    // });
+    this.load.spritesheet("mage", "assets/players/mage.png", {
+      frameWidth: 24,
+      frameHeight: 32,
+    });
 
     console.log("Assets loaded");
   }

@@ -5,6 +5,7 @@ export abstract class Enemy extends Phaser.Physics.Arcade.Sprite {
   protected speed: number;
   protected damage: number;
   protected prefix: string;
+  protected attackCooldown: boolean = false;
 
   constructor(
     scene: Phaser.Scene,
@@ -82,6 +83,20 @@ export abstract class Enemy extends Phaser.Physics.Arcade.Sprite {
     if (this.health <= 0) {
       this.destroy();
     }
+  }
+
+  public doDamage(): number {
+    if (this.attackCooldown) {
+      return 0;
+    }
+
+    this.attackCooldown = true;
+
+    this.scene.time.delayedCall(1000, () => {
+      this.attackCooldown = false;
+    });
+
+    return this.getDamage();
   }
 
   public getDamage(): number {

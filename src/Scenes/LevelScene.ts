@@ -98,6 +98,8 @@ export default class LevelScene extends Phaser.Scene {
   }
 
   private handlePlayerEnemyCollision(player: any, enemy: any) {
-    player.takeDamage(enemy.getDamage());
+    if (player instanceof Player && enemy instanceof Enemy) {
+      player.takeDamage(enemy.doDamage());
+    }
   }
 }
