@@ -1,0 +1,4 @@
+export const WINDOW_WIDTH = 1280;
+export const WINDOW_HEIGHT = 720;
+export const WINDOW_ASPECT_RATIO = WINDOW_WIDTH / WINDOW_HEIGHT;
+export const WINDOW_CENTER = { x: WINDOW_WIDTH / 2, y: WINDOW_HEIGHT / 2 };
