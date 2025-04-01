@@ -77,7 +77,7 @@ export abstract class Player extends Phaser.Physics.Arcade.Sprite {
 
   protected updateAnimation(dx: number, dy: number): void {
     if (dx === 0 && dy === 0) {
-      this.anims.play(`${this.prefix}_idle`, true);
+      this.anims.play(`${this.prefix}_idle_${this.facing}`, true);
       return;
     }
 
@@ -123,10 +123,40 @@ export abstract class Player extends Phaser.Physics.Arcade.Sprite {
 
   createAnimations(): void {
     this.anims.create({
-      key: `${this.prefix}_idle`,
+      key: `${this.prefix}_idle_down`,
       frames: this.anims.generateFrameNumbers(this.prefix, {
         start: 0,
         end: 0,
+      }),
+      frameRate: 8,
+      repeat: -1,
+    });
+
+    this.anims.create({
+      key: `${this.prefix}_idle_up`,
+      frames: this.anims.generateFrameNumbers(this.prefix, {
+        start: 9,
+        end: 9,
+      }),
+      frameRate: 8,
+      repeat: -1,
+    });
+
+    this.anims.create({
+      key: `${this.prefix}_idle_left`,
+      frames: this.anims.generateFrameNumbers(this.prefix, {
+        start: 3,
+        end: 3,
+      }),
+      frameRate: 8,
+      repeat: -1,
+    });
+
+    this.anims.create({
+      key: `${this.prefix}_idle_right`,
+      frames: this.anims.generateFrameNumbers(this.prefix, {
+        start: 6,
+        end: 6,
       }),
       frameRate: 8,
       repeat: -1,

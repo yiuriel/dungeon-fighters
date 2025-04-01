@@ -81,7 +81,7 @@ export default class LevelScene extends Phaser.Scene {
     this.cameras.main.startFollow(player, true, 0.5, 0.5);
   }
 
-  update(time: number, delta: number) {
+  update() {
     // Update players
     this.players.getChildren().forEach((player) => {
       if (player instanceof Player) {
