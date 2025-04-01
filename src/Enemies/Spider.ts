@@ -8,20 +8,10 @@ export default class Spider extends Enemy {
     y: number,
     frame?: string | number
   ) {
-    super(scene, x, y, "spider", frame, 50, 80, 5);
+    super(scene, x, y, "spider", "spider", frame, 50, 30, 5);
 
-    this.anims.create({
-      key: "spider_idle",
-      frames: this.anims.generateFrameNumbers("spider", { start: 0, end: 3 }),
-      frameRate: 10,
-      repeat: -1,
-    });
+    this.anims.play(`${this.prefix}_idle`, true);
   }
 
-  update(): void {
-    if (!this.active) return;
-
-    this.anims.play("spider_idle");
-    // Spider specific movement or behavior
-  }
+  protected updateSpecific(): void {}
 }
