@@ -4,11 +4,13 @@ import { Enemy } from "../Enemies/Enemy";
 import Spider from "../Enemies/Spider";
 import { Mage } from "../Players/Mage";
 import { Player } from "../Players/Player";
+import { MageBasicSpell } from "../Spells/MageBasicSpell";
 
 export default class LevelScene extends Phaser.Scene {
   private players!: Phaser.Physics.Arcade.Group;
   private enemies!: Phaser.Physics.Arcade.Group;
   private walls!: Phaser.Physics.Arcade.StaticGroup;
+  private spells!: Phaser.Physics.Arcade.Group;
 
   constructor() {
     super("LevelScene");
@@ -57,6 +59,14 @@ export default class LevelScene extends Phaser.Scene {
     // Create enemies group
     this.enemies = this.physics.add.group();
 
+    // Create spells group
+    this.spells = this.physics.add.group();
+
+    // Listen for spell cast events
+    this.events.on("spellCast", (spell: any) => {
+      this.spells.add(spell);
+    });
+
     // Create some enemies
     for (let i = 0; i < 5; i++) {
       const x = Phaser.Math.Between(100, mapWidth - 100);
@@ -68,11 +78,24 @@ export default class LevelScene extends Phaser.Scene {
     // Set up collisions
     this.physics.add.collider(this.players, this.walls);
     this.physics.add.collider(this.enemies, this.walls);
-    this.physics.add.collider(this.enemies, this.enemies);
+    this.physics.add.collider(
+      this.enemies,
+      this.enemies,
+      this.handleEnemyEnemyCollision,
+      undefined,
+      this
+    );
     this.physics.add.collider(
       this.players,
       this.enemies,
       this.handlePlayerEnemyCollision,
+      undefined,
+      this
+    );
+    this.physics.add.overlap(
+      this.spells,
+      this.enemies,
+      this.handleSpellEnemyCollision,
       undefined,
       this
     );
@@ -100,6 +123,24 @@ export default class LevelScene extends Phaser.Scene {
   private handlePlayerEnemyCollision(player: any, enemy: any) {
     if (player instanceof Player && enemy instanceof Enemy) {
       player.takeDamage(enemy.doDamage());
+    }
+  }
+
+  private handleEnemyEnemyCollision(enemy1: any, enemy2: any) {
+    if (enemy1 instanceof Enemy && enemy2 instanceof Enemy) {
+      enemy1.knockback(enemy2);
+    }
+  }
+
+  private handleSpellEnemyCollision(spell: any, enemy: any) {
+    if (spell instanceof MageBasicSpell && enemy instanceof Enemy) {
+      // Only do damage if spell is still in active animation frame
+      if (
+        spell.anims.currentFrame?.index !== undefined &&
+        spell.anims.currentFrame.index < 5
+      ) {
+        enemy.takeDamage(10);
+      }
     }
   }
 }

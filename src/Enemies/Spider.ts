@@ -1,7 +1,10 @@
 import Phaser from "phaser";
 import { Enemy } from "./Enemy";
+import { HealthBar } from "../Common/HealthBar";
 
 export default class Spider extends Enemy {
+  healthBar: HealthBar;
+
   constructor(
     scene: Phaser.Scene,
     x: number,
@@ -16,8 +19,25 @@ export default class Spider extends Enemy {
       this.body.setOffset(4, 16);
     }
 
+    this.healthBar = new HealthBar(
+      scene,
+      this,
+      this.health,
+      undefined,
+      undefined,
+      -15
+    );
+
     this.anims.play(`${this.prefix}_idle`, true);
   }
 
-  protected updateSpecific(): void {}
+  protected updateSpecific(): void {
+    this.healthBar.update();
+    this.healthBar.setHealth(this.health);
+  }
+
+  public destroy(): void {
+    super.destroy();
+    this.healthBar.destroy();
+  }
 }

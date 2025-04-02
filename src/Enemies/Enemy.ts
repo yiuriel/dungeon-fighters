@@ -6,6 +6,10 @@ export abstract class Enemy extends Phaser.Physics.Arcade.Sprite {
   protected damage: number;
   protected prefix: string;
   protected attackCooldown: boolean = false;
+  protected attackDuration: number = 1000;
+
+  protected takingDamage: boolean = false;
+  protected takingDamageDuration: number = 1000;
 
   constructor(
     scene: Phaser.Scene,
@@ -78,11 +82,41 @@ export abstract class Enemy extends Phaser.Physics.Arcade.Sprite {
     }
   }
 
+  public knockback(otherEnemy: Enemy, strength: number = 500): void {
+    // Calculate direction away from the other enemy
+    const dx = this.x - otherEnemy.x;
+    const dy = this.y - otherEnemy.y;
+    const angle = Math.atan2(dy, dx);
+
+    // Apply knockback force
+    this.setVelocityX(Math.cos(angle) * strength);
+    this.setVelocityY(Math.sin(angle) * strength);
+
+    // Reset velocity after a short delay
+    this.scene.time.delayedCall(200, () => {
+      if (this.active) {
+        this.setVelocity(0);
+      }
+    });
+  }
+
   public takeDamage(amount: number): void {
+    if (this.takingDamage) {
+      return;
+    }
+
+    this.takingDamage = true;
     this.health -= amount;
+    this.tint = 0xff0000;
     if (this.health <= 0) {
       this.destroy();
     }
+
+    if (this.health)
+      this.scene.time.delayedCall(this.takingDamageDuration, () => {
+        this.takingDamage = false;
+        this.tint = 0xffffff;
+      });
   }
 
   public doDamage(): number {
@@ -92,7 +126,7 @@ export abstract class Enemy extends Phaser.Physics.Arcade.Sprite {
 
     this.attackCooldown = true;
 
-    this.scene.time.delayedCall(1000, () => {
+    this.scene.time.delayedCall(this.attackDuration, () => {
       this.attackCooldown = false;
     });
 

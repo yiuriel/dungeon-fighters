@@ -1,3 +1,5 @@
+import { HealthBar } from "../Common/HealthBar";
+
 export abstract class Player extends Phaser.Physics.Arcade.Sprite {
   protected health: number;
   protected speed: number;
@@ -5,6 +7,7 @@ export abstract class Player extends Phaser.Physics.Arcade.Sprite {
   protected prefix: string;
   protected facing: string = "down";
   protected cursors!: Phaser.Types.Input.Keyboard.CursorKeys;
+  protected healthBar: HealthBar;
 
   constructor(
     scene: Phaser.Scene,
@@ -25,6 +28,8 @@ export abstract class Player extends Phaser.Physics.Arcade.Sprite {
     this.speed = speed || 150;
     this.damage = damage || 20;
     this.prefix = prefix;
+
+    this.healthBar = new HealthBar(scene, this, this.health);
 
     if (!scene.input?.keyboard) {
       throw new Error("Input keyboard not found");
@@ -104,6 +109,7 @@ export abstract class Player extends Phaser.Physics.Arcade.Sprite {
 
   takeDamage(amount: number): void {
     this.health -= amount;
+    this.healthBar.setHealth(this.health);
     if (this.health <= 0) {
       this.destroy();
     }

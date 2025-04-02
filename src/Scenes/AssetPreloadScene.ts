@@ -48,6 +48,15 @@ export default class AssetPreloadScene extends Phaser.Scene {
       frameHeight: 32,
     });
 
+    this.load.spritesheet(
+      "mage_basic_spell",
+      "assets/spells/mage_basic_spell.png",
+      {
+        frameWidth: 32,
+        frameHeight: 32,
+      }
+    );
+
     console.log("Assets loaded");
   }
 
