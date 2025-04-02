@@ -86,6 +86,9 @@ export default class LevelScene extends Phaser.Scene {
     // Set up collisions
     this.physics.add.collider(this.players, this.walls);
     this.physics.add.collider(this.enemies, this.walls);
+    this.physics.add.collider(this.overlapSpells, this.walls);
+    this.physics.add.collider(this.collideSpells, this.walls);
+
     this.physics.add.collider(
       this.enemies,
       this.enemies,

@@ -80,6 +80,14 @@ export class MageProjectileSpell extends Phaser.Physics.Arcade.Sprite {
 
     // Destroy after lifespan
     scene.time.delayedCall(this.lifespan, () => {
+      // Fade opacity to 0.2 during lifespan
+      scene.tweens.add({
+        targets: this,
+        alpha: 0.2,
+        duration: 200,
+        ease: "Linear",
+      });
+
       this.play(this.getEndAnimationKey()).once("animationcomplete", () => {
         this.destroy();
       });
