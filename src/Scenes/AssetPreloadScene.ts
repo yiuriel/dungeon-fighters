@@ -57,6 +57,15 @@ export default class AssetPreloadScene extends Phaser.Scene {
       }
     );
 
+    this.load.spritesheet(
+      "mage_projectile_spell",
+      "assets/spells/mage_projectile_spell.png",
+      {
+        frameWidth: 24,
+        frameHeight: 16,
+      }
+    );
+
     console.log("Assets loaded");
   }
 

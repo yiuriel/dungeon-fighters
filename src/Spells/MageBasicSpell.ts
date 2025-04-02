@@ -2,7 +2,8 @@ import Phaser from "phaser";
 import { Mage } from "../Players/Mage";
 
 export class MageBasicSpell extends Phaser.Physics.Arcade.Sprite {
-  private lifespan: number = 1000; // milliseconds
+  private lifespan: number = 750; // milliseconds
+  private damage: number = 10;
   private caster: Mage;
 
   constructor(
@@ -10,10 +11,14 @@ export class MageBasicSpell extends Phaser.Physics.Arcade.Sprite {
     x: number,
     y: number,
     texture: string,
-    caster: Mage
+    caster: Mage,
+    damage: number,
+    lifespan?: number
   ) {
     super(scene, x, y, texture);
     this.caster = caster;
+    this.lifespan = lifespan || 750;
+    this.damage = damage;
 
     this.createAnimations();
 
@@ -39,16 +44,13 @@ export class MageBasicSpell extends Phaser.Physics.Arcade.Sprite {
     }
 
     // Set depth to appear above other sprites
-    this.setDepth(1000);
+    this.setDepth(0);
     this.setVelocity(0, 0);
 
     // Play the animation
-    this.play(`${caster.getPrefix()}_basic_spell_start`).once(
-      "animationcomplete",
-      () => {
-        this.play(`${caster.getPrefix()}_basic_spell_idle`);
-      }
-    );
+    this.play(this.getStartAnimationKey()).once("animationcomplete", () => {
+      this.play(this.getIdleAnimationKey());
+    });
 
     // Set collision size
     if (this.body) {
@@ -59,20 +61,41 @@ export class MageBasicSpell extends Phaser.Physics.Arcade.Sprite {
       }
     }
 
+    // Fade opacity to 0.35 during lifespan
+    scene.tweens.add({
+      targets: this,
+      alpha: 0.35,
+      duration: this.lifespan,
+      ease: "Linear",
+    });
+
     // Play end animation then destroy after lifespan
     scene.time.delayedCall(this.lifespan, () => {
-      this.play(`${caster.getPrefix()}_basic_spell_end`).once(
-        "animationcomplete",
-        () => {
-          this.destroy();
-        }
-      );
+      this.play(this.getEndAnimationKey()).once("animationcomplete", () => {
+        this.destroy();
+      });
     });
+  }
+
+  getDamage(): number {
+    return this.damage;
+  }
+
+  getStartAnimationKey(): string {
+    return `${this.caster.getPrefix()}_basic_spell_start`;
+  }
+
+  getIdleAnimationKey(): string {
+    return `${this.caster.getPrefix()}_basic_spell_idle`;
+  }
+
+  getEndAnimationKey(): string {
+    return `${this.caster.getPrefix()}_basic_spell_end`;
   }
 
   private createAnimations(): void {
     this.anims.create({
-      key: `${this.caster.getPrefix()}_basic_spell_start`,
+      key: this.getStartAnimationKey(),
       frames: this.anims.generateFrameNumbers(
         `${this.caster.getPrefix()}_basic_spell`,
         {
@@ -80,12 +103,12 @@ export class MageBasicSpell extends Phaser.Physics.Arcade.Sprite {
           end: 3,
         }
       ),
-      frameRate: 12,
+      frameRate: 16,
       repeat: 0,
     });
 
     this.anims.create({
-      key: `${this.caster.getPrefix()}_basic_spell_idle`,
+      key: this.getIdleAnimationKey(),
       frames: this.anims.generateFrameNumbers(
         `${this.caster.getPrefix()}_basic_spell`,
         {
@@ -93,12 +116,12 @@ export class MageBasicSpell extends Phaser.Physics.Arcade.Sprite {
           end: 5,
         }
       ),
-      frameRate: 12,
+      frameRate: 16,
       repeat: -1,
     });
 
     this.anims.create({
-      key: `${this.caster.getPrefix()}_basic_spell_end`,
+      key: this.getEndAnimationKey(),
       frames: this.anims.generateFrameNumbers(
         `${this.caster.getPrefix()}_basic_spell`,
         {
@@ -106,7 +129,7 @@ export class MageBasicSpell extends Phaser.Physics.Arcade.Sprite {
           end: 9,
         }
       ),
-      frameRate: 12,
+      frameRate: 16,
       repeat: 0,
     });
   }

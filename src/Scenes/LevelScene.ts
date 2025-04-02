@@ -5,12 +5,14 @@ import Spider from "../Enemies/Spider";
 import { Mage } from "../Players/Mage";
 import { Player } from "../Players/Player";
 import { MageBasicSpell } from "../Spells/MageBasicSpell";
+import { MageProjectileSpell } from "../Spells/MageProjectileSpell";
 
 export default class LevelScene extends Phaser.Scene {
   private players!: Phaser.Physics.Arcade.Group;
   private enemies!: Phaser.Physics.Arcade.Group;
   private walls!: Phaser.Physics.Arcade.StaticGroup;
-  private spells!: Phaser.Physics.Arcade.Group;
+  private overlapSpells!: Phaser.Physics.Arcade.Group;
+  private collideSpells!: Phaser.Physics.Arcade.Group;
 
   constructor() {
     super("LevelScene");
@@ -25,27 +27,28 @@ export default class LevelScene extends Phaser.Scene {
     const mapHeight = this.cameras.main.height;
     const wallThickness = 20;
 
+    // Top wall - positioned exactly at the edge
     // Top wall
     this.walls
-      .create(mapWidth / 2, 0, "tiles")
+      .create(mapWidth / 2, wallThickness / 2, "tiles")
       .setScale(mapWidth / 32, wallThickness / 32)
       .refreshBody();
 
     // Bottom wall
     this.walls
-      .create(mapWidth / 2, mapHeight, "tiles")
+      .create(mapWidth / 2, mapHeight - wallThickness / 2, "tiles")
       .setScale(mapWidth / 32, wallThickness / 32)
       .refreshBody();
 
     // Left wall
     this.walls
-      .create(0, mapHeight / 2, "tiles")
+      .create(wallThickness / 2, mapHeight / 2, "tiles")
       .setScale(wallThickness / 32, mapHeight / 32)
       .refreshBody();
 
     // Right wall
     this.walls
-      .create(mapWidth, mapHeight / 2, "tiles")
+      .create(mapWidth - wallThickness / 2, mapHeight / 2, "tiles")
       .setScale(wallThickness / 32, mapHeight / 32)
       .refreshBody();
 
@@ -60,11 +63,16 @@ export default class LevelScene extends Phaser.Scene {
     this.enemies = this.physics.add.group();
 
     // Create spells group
-    this.spells = this.physics.add.group();
+    this.overlapSpells = this.physics.add.group();
+    this.collideSpells = this.physics.add.group();
 
     // Listen for spell cast events
     this.events.on("spellCast", (spell: any) => {
-      this.spells.add(spell);
+      this.overlapSpells.add(spell);
+    });
+
+    this.events.on("projectileSpellCast", (spell: any) => {
+      this.collideSpells.add(spell);
     });
 
     // Create some enemies
@@ -93,15 +101,23 @@ export default class LevelScene extends Phaser.Scene {
       this
     );
     this.physics.add.overlap(
-      this.spells,
+      this.overlapSpells,
       this.enemies,
       this.handleSpellEnemyCollision,
       undefined,
       this
     );
-
+    this.physics.add.collider(
+      this.collideSpells,
+      this.enemies,
+      this.handleProjectileSpellEnemyCollision,
+      undefined,
+      this
+    );
     // Set up camera to follow the player
+    this.physics.world.setBounds(0, 0, mapWidth, mapHeight);
     this.cameras.main.startFollow(player, true, 0.5, 0.5);
+    this.cameras.main.setBounds(0, 0, mapWidth, mapHeight);
   }
 
   update() {
@@ -135,11 +151,28 @@ export default class LevelScene extends Phaser.Scene {
   private handleSpellEnemyCollision(spell: any, enemy: any) {
     if (spell instanceof MageBasicSpell && enemy instanceof Enemy) {
       // Only do damage if spell is still in active animation frame
+      if (spell.anims.currentAnim?.key === spell.getStartAnimationKey()) {
+        enemy.takeDamage(spell.getDamage());
+      }
+    }
+  }
+
+  private handleProjectileSpellEnemyCollision(
+    projectileSpell: any,
+    enemy: any
+  ) {
+    if (
+      projectileSpell instanceof MageProjectileSpell &&
+      enemy instanceof Enemy
+    ) {
+      // Only do damage if spell is still in active animation frame
       if (
-        spell.anims.currentFrame?.index !== undefined &&
-        spell.anims.currentFrame.index < 5
+        projectileSpell.anims.currentAnim?.key ===
+          projectileSpell.getStartAnimationKey() ||
+        projectileSpell.anims.currentAnim?.key ===
+          projectileSpell.getIdleAnimationKey()
       ) {
-        enemy.takeDamage(10);
+        enemy.takeDamage(projectileSpell.getDamage());
       }
     }
   }

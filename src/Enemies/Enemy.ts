@@ -31,6 +31,8 @@ export abstract class Enemy extends Phaser.Physics.Arcade.Sprite {
     this.damage = damage || 10;
     this.prefix = prefix;
 
+    this.setDepth(10);
+
     this.createAnimations();
   }
 
@@ -112,7 +114,7 @@ export abstract class Enemy extends Phaser.Physics.Arcade.Sprite {
       this.destroy();
     }
 
-    if (this.health)
+    if (this.health && this.active)
       this.scene.time.delayedCall(this.takingDamageDuration, () => {
         this.takingDamage = false;
         this.tint = 0xffffff;
