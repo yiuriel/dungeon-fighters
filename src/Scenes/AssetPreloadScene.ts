@@ -66,6 +66,15 @@ export default class AssetPreloadScene extends Phaser.Scene {
       }
     );
 
+    this.load.spritesheet(
+      "mage_teleport_spell",
+      "assets/spells/mage_teleport_spell.png",
+      {
+        frameWidth: 96,
+        frameHeight: 96,
+      }
+    );
+
     console.log("Assets loaded");
   }
 
