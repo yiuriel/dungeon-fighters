@@ -6,6 +6,7 @@ import { Mage } from "../Players/Mage";
 import { Player } from "../Players/Player";
 import { MageBasicSpell } from "../Spells/MageBasicSpell";
 import { MageProjectileSpell } from "../Spells/MageProjectileSpell";
+import { FireMage } from "../Players/FireMage";
 
 export default class LevelScene extends Phaser.Scene {
   private players!: Phaser.Physics.Arcade.Group;
@@ -56,7 +57,13 @@ export default class LevelScene extends Phaser.Scene {
     this.players = this.physics.add.group();
 
     // Create player in the center
-    const player = new Mage(this, WINDOW_CENTER.x, WINDOW_CENTER.y, "player");
+    const selectedCharacter = localStorage.getItem("selectedCharacter");
+    let player: Player;
+    if (selectedCharacter === "fire_mage") {
+      player = new FireMage(this, WINDOW_CENTER.x, WINDOW_CENTER.y, "player");
+    } else {
+      player = new Mage(this, WINDOW_CENTER.x, WINDOW_CENTER.y, "player");
+    }
     this.players.add(player);
 
     // Create enemies group

@@ -37,10 +37,10 @@ export class Mage extends Player {
     frame?: string | number,
     health?: number,
     speed?: number,
-    damage?: number,
-    mana?: number
+    mana?: number,
+    skipBars?: boolean
   ) {
-    super(scene, x, y, texture, "mage", frame, health, speed, damage);
+    super(scene, x, y, texture, "mage", frame, health, speed, skipBars);
     this.mana = mana || 100;
 
     if (this.body) {
@@ -49,6 +49,9 @@ export class Mage extends Player {
     }
 
     this.manaBar = new ManaBar(scene, this, this.mana);
+    if (skipBars) {
+      this.manaBar.destroy();
+    }
 
     if (!scene.input?.keyboard) {
       throw new Error("Input keyboard not found");

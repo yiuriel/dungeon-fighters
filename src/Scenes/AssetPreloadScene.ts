@@ -75,6 +75,11 @@ export default class AssetPreloadScene extends Phaser.Scene {
       }
     );
 
+    this.load.spritesheet("fire_mage", "assets/players/fire_mage.png", {
+      frameWidth: 24,
+      frameHeight: 32,
+    });
+
     console.log("Assets loaded");
   }
 
