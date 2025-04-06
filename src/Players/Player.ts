@@ -128,8 +128,8 @@ export abstract class Player extends Phaser.Physics.Arcade.Sprite {
     this.anims.create({
       key: `${this.prefix}_idle_down`,
       frames: this.anims.generateFrameNumbers(this.prefix, {
-        start: 0,
-        end: 0,
+        start: 1,
+        end: 1,
       }),
       frameRate: 8,
       repeat: -1,
@@ -168,8 +168,7 @@ export abstract class Player extends Phaser.Physics.Arcade.Sprite {
     this.anims.create({
       key: `${this.prefix}_walk_down`,
       frames: this.anims.generateFrameNumbers(this.prefix, {
-        start: 0,
-        end: 2,
+        frames: [0, 1, 2, 1],
       }),
       frameRate: 8,
       repeat: -1,
@@ -178,8 +177,7 @@ export abstract class Player extends Phaser.Physics.Arcade.Sprite {
     this.anims.create({
       key: `${this.prefix}_walk_up`,
       frames: this.anims.generateFrameNumbers(this.prefix, {
-        start: 9,
-        end: 11,
+        frames: [9, 10, 11, 10],
       }),
       frameRate: 8,
       repeat: -1,
@@ -188,8 +186,7 @@ export abstract class Player extends Phaser.Physics.Arcade.Sprite {
     this.anims.create({
       key: `${this.prefix}_walk_left`,
       frames: this.anims.generateFrameNumbers(this.prefix, {
-        start: 3,
-        end: 5,
+        frames: [3, 4, 5, 4],
       }),
       frameRate: 8,
       repeat: -1,
@@ -198,8 +195,7 @@ export abstract class Player extends Phaser.Physics.Arcade.Sprite {
     this.anims.create({
       key: `${this.prefix}_walk_right`,
       frames: this.anims.generateFrameNumbers(this.prefix, {
-        start: 6,
-        end: 8,
+        frames: [6, 7, 8, 7],
       }),
       frameRate: 8,
       repeat: -1,

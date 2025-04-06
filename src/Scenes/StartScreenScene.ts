@@ -168,6 +168,8 @@ export default class StartScreenScene extends Phaser.Scene {
     }
     player.setScale(1.8);
 
+    this.anims.play({ key: `${spriteKey}_walk_down`, frameRate: 4 }, player);
+
     // Add label
     this.add
       .text(x, y + 60, label, {
