@@ -1,4 +1,5 @@
 import { ManaBar } from "../Common/ManaBar";
+import { FireMageShield } from "../Spells/FireMageShield";
 import { Player } from "./Player";
 
 export class FireMage extends Player {
@@ -8,8 +9,8 @@ export class FireMage extends Player {
   private fireShieldKey: Phaser.Input.Keyboard.Key;
   private fireShieldCooldown: boolean = false;
   private fireShieldLifespan: number = 1000;
-  private fireShieldDamage: number = 20;
-  private fireShieldManaCost: number = 10;
+  private fireShieldDamage: number = 0;
+  private fireShieldManaCost: number = 15;
 
   private fireCircleKey: Phaser.Input.Keyboard.Key;
   private fireCircleCooldown: boolean = false;
@@ -92,7 +93,20 @@ export class FireMage extends Player {
 
   castFireShield(): void {
     if (this.mana >= this.fireShieldManaCost && !this.fireShieldCooldown) {
+      this.fireShieldCooldown = true;
       this.mana -= this.fireShieldManaCost;
+      this.manaBar.setMana(this.mana);
+      new FireMageShield(
+        this.scene,
+        this.x,
+        this.y,
+        this,
+        this.fireShieldLifespan
+      );
+
+      this.scene.time.delayedCall(this.fireShieldLifespan + 2000, () => {
+        this.fireShieldCooldown = false;
+      });
     }
   }
 
@@ -115,6 +129,10 @@ export class FireMage extends Player {
 
   getMana(): number {
     return this.mana;
+  }
+
+  getFireShieldCooldown(): boolean {
+    return this.fireShieldCooldown;
   }
 
   getFireShieldDamage(): number {

@@ -80,6 +80,33 @@ export default class AssetPreloadScene extends Phaser.Scene {
       frameHeight: 32,
     });
 
+    this.load.spritesheet(
+      "fire_mage_shield",
+      "assets/spells/fire_mage_shield.png",
+      {
+        frameWidth: 64,
+        frameHeight: 64,
+      }
+    );
+
+    this.load.spritesheet(
+      "fire_mage_circle",
+      "assets/spells/fire_mage_fire_circle_spell.png",
+      {
+        frameWidth: 96,
+        frameHeight: 96,
+      }
+    );
+
+    this.load.spritesheet(
+      "fire_mage_orb",
+      "assets/spells/fire_mage_fire_orb_spell.png",
+      {
+        frameWidth: 80,
+        frameHeight: 80,
+      }
+    );
+
     console.log("Assets loaded");
   }
 
