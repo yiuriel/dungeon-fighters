@@ -1,4 +1,5 @@
 import { ManaBar } from "../Common/ManaBar";
+import { FireMageFireCircle } from "../Spells/FireMageFireCircle";
 import { FireMageShield } from "../Spells/FireMageShield";
 import { Player } from "./Player";
 
@@ -15,8 +16,8 @@ export class FireMage extends Player {
   private fireCircleKey: Phaser.Input.Keyboard.Key;
   private fireCircleCooldown: boolean = false;
   private fireCircleLifespan: number = 1000;
-  private fireCircleDamage: number = 30;
-  private fireCircleManaCost: number = 25;
+  private fireCircleDamage: number = 10;
+  private fireCircleManaCost: number = 20;
 
   private fireOrbKey: Phaser.Input.Keyboard.Key;
   private fireOrbCooldown: boolean = false;
@@ -113,6 +114,19 @@ export class FireMage extends Player {
   castFireCircle(): void {
     if (this.mana >= this.fireCircleManaCost && !this.fireCircleCooldown) {
       this.mana -= this.fireCircleManaCost;
+      this.manaBar.setMana(this.mana);
+      const fireCircle = new FireMageFireCircle(
+        this.scene,
+        this.x,
+        this.y,
+        this
+      );
+      this.scene.events.emit("fireCircleCreated", fireCircle);
+
+      this.fireCircleCooldown = true;
+      this.scene.time.delayedCall(this.fireCircleLifespan, () => {
+        this.fireCircleCooldown = false;
+      });
     }
   }
 

@@ -1,3 +1,4 @@
+import { Status } from "../Common/Status";
 import { Player } from "../Players/Player";
 
 export abstract class Enemy extends Phaser.Physics.Arcade.Sprite {
@@ -10,6 +11,7 @@ export abstract class Enemy extends Phaser.Physics.Arcade.Sprite {
 
   protected takingDamage: boolean = false;
   protected takingDamageDuration: number = 1000;
+  protected status: Status | null = null;
 
   constructor(
     scene: Phaser.Scene,
@@ -102,10 +104,12 @@ export abstract class Enemy extends Phaser.Physics.Arcade.Sprite {
     });
   }
 
-  public takeDamage(amount: number): void {
+  public takeDamage(amount: number, status: Status | null = null): void {
     if (this.takingDamage) {
       return;
     }
+
+    this.status = status;
 
     this.takingDamage = true;
     this.health -= amount;

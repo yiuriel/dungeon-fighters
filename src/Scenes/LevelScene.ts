@@ -7,6 +7,8 @@ import { Player } from "../Players/Player";
 import { MageBasicSpell } from "../Spells/MageBasicSpell";
 import { MageProjectileSpell } from "../Spells/MageProjectileSpell";
 import { FireMage } from "../Players/FireMage";
+import { FireMageFireCircle } from "../Spells/FireMageFireCircle";
+import { Status } from "../Common/Status";
 
 export default class LevelScene extends Phaser.Scene {
   private players!: Phaser.Physics.Arcade.Group;
@@ -80,6 +82,10 @@ export default class LevelScene extends Phaser.Scene {
 
     this.events.on("projectileSpellCast", (spell: any) => {
       this.collideSpells.add(spell);
+    });
+
+    this.events.on("fireCircleCreated", (fireCircle: any) => {
+      this.overlapSpells.add(fireCircle);
     });
 
     // Create some enemies
@@ -167,6 +173,16 @@ export default class LevelScene extends Phaser.Scene {
       // Only do damage if spell is still in active animation frame
       if (spell.anims.currentAnim?.key === spell.getStartAnimationKey()) {
         enemy.takeDamage(spell.getDamage());
+      }
+    }
+
+    if (spell instanceof FireMageFireCircle && enemy instanceof Enemy) {
+      // Only do damage if spell is still in active animation frame
+      if (spell.anims.currentAnim?.key === spell.getActiveAnimationKey()) {
+        enemy.takeDamage(
+          spell.getDamage(),
+          new Status(this, enemy, "fire", 2, 5000, 500)
+        );
       }
     }
   }
