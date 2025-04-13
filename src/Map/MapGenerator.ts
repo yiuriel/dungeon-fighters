@@ -53,6 +53,15 @@ export class MapGenerator {
       frameWidth: this.tileSize,
       frameHeight: this.tileSize,
     });
+
+    this.scene.load.spritesheet(
+      "rock-tiles",
+      "assets/tilesets/rock-tiles.png",
+      {
+        frameWidth: this.tileSize,
+        frameHeight: this.tileSize,
+      }
+    );
   }
 
   public getBoundaries(): Phaser.Physics.Arcade.StaticGroup {
@@ -102,13 +111,15 @@ export class MapGenerator {
 
     // Add the tileset to the map
     const tileset = tilemap.addTilesetImage("tiles");
+    const rockTileset = tilemap.addTilesetImage("rock-tiles");
 
-    if (!tileset) {
+    if (!tileset || !rockTileset) {
       throw new Error("Tileset not found");
     }
 
     // Create the layer with the tileset
     const layer = tilemap.createLayer(0, tileset, 0, 0);
+    tilemap.createLayer(0, rockTileset, 0, 0);
 
     // Randomly rotate floor tiles
     for (let y = 0; y < this.mapHeight; y++) {
@@ -144,6 +155,11 @@ export class MapGenerator {
     // Create the boundary walls
     this.createBoundaries();
 
+    // Add random rocks to the map
+    if (layer) {
+      this.createRocks(layer);
+    }
+
     // Add random rooms
     this.createRooms();
 
@@ -154,6 +170,41 @@ export class MapGenerator {
       this.mapWidth * this.tileSize,
       this.mapHeight * this.tileSize
     );
+  }
+
+  // Function to create random rocks throughout the map
+  createRocks(layer: Phaser.Tilemaps.TilemapLayer): void {
+    const numRocks = Phaser.Math.Between(10, 20);
+
+    for (let i = 0; i < numRocks; i++) {
+      // Get random position
+      const x = Phaser.Math.Between(1, this.mapWidth - 2);
+      const y = Phaser.Math.Between(1, this.mapHeight - 2);
+
+      // Check if position has a floor tile
+      const tile = layer.getTileAt(x, y, false);
+      if (
+        tile &&
+        [
+          TileType.FLOOR,
+          TileType.FLOOR_ALT_1,
+          TileType.FLOOR_ALT_2,
+          TileType.FLOOR_ALT_3,
+          TileType.FLOOR_ALT_4,
+          TileType.FLOOR_ALT_5,
+        ].includes(tile.index)
+      ) {
+        // Create rock and add to boundaries
+        const rock = this.boundaries.create(
+          x * this.tileSize + this.tileSize / 2,
+          y * this.tileSize + this.tileSize / 2,
+          "rock-tiles",
+          Phaser.Math.Between(0, 3)
+        );
+        this.map[y][x] = 100;
+        rock.setImmovable(true);
+      }
+    }
   }
 
   private createBoundaries() {

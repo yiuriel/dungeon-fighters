@@ -72,6 +72,8 @@ export class HealthBar {
       healthWidth,
       this.height
     );
+
+    this.bar.setDepth(this.parentSprite.depth + 1);
   }
 
   destroy(): void {

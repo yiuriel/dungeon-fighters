@@ -13,7 +13,18 @@ export default class Spider extends Enemy {
     mapGenerator: MapGenerator,
     frame?: string | number
   ) {
-    super(scene, x, y, "spider", mapGenerator, "spider", frame, 50, 30, 5);
+    super(
+      scene,
+      x,
+      y,
+      "spider",
+      mapGenerator,
+      "spider",
+      frame,
+      50,
+      Phaser.Math.Between(30, 45),
+      Phaser.Math.Between(5, 15)
+    );
 
     // Set up a smaller collision box at the bottom of the sprite
     if (this.body) {
