@@ -41,7 +41,7 @@ export default class LevelScene extends Phaser.Scene {
     if (selectedCharacter === "fire_mage") {
       player = new FireMage(this, x, y, "player");
     } else {
-      player = new Mage(this, x, y, "player");
+      player = new Mage(this, x, y, "player", this.mapGenerator);
     }
     this.players.add(player);
 

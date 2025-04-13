@@ -1,8 +1,8 @@
 import Phaser from "phaser";
-import StartScreenScene from "./Scenes/StartScreenScene";
+import { WINDOW_HEIGHT, WINDOW_WIDTH } from "./constants";
 import AssetPreloadScene from "./Scenes/AssetPreloadScene";
-import { WINDOW_WIDTH, WINDOW_HEIGHT } from "./constants";
 import LevelScene from "./Scenes/LevelScene";
+import StartScreenScene from "./Scenes/StartScreenScene";
 
 const config: Phaser.Types.Core.GameConfig = {
   type: Phaser.AUTO,
@@ -17,6 +17,12 @@ const config: Phaser.Types.Core.GameConfig = {
     },
   },
   pixelArt: true,
+  scale: {
+    mode: Phaser.Scale.FIT,
+    autoCenter: Phaser.Scale.CENTER_BOTH,
+    width: WINDOW_WIDTH,
+    height: WINDOW_HEIGHT,
+  },
 };
 
 new Phaser.Game(config);

@@ -76,6 +76,10 @@ export class MapGenerator {
     return this.mapHeight * this.tileSize;
   }
 
+  public getTileSize(): number {
+    return this.tileSize;
+  }
+
   public generateMap(): void {
     // Create empty map grid filled with random floor tiles
     this.map = Array(this.mapHeight)
@@ -101,7 +105,36 @@ export class MapGenerator {
     }
 
     // Create the layer with the tileset
-    tilemap.createLayer(0, tileset, 0, 0);
+    const layer = tilemap.createLayer(0, tileset, 0, 0);
+
+    // Randomly rotate floor tiles
+    for (let y = 0; y < this.mapHeight; y++) {
+      for (let x = 0; x < this.mapWidth; x++) {
+        const tile = layer?.getTileAt(x, y);
+        if (tile) {
+          // Only rotate floor tiles
+          if (
+            [
+              TileType.FLOOR,
+              TileType.FLOOR_ALT_1,
+              TileType.FLOOR_ALT_2,
+              TileType.FLOOR_ALT_3,
+              TileType.FLOOR_ALT_4,
+              TileType.FLOOR_ALT_5,
+              TileType.FLOOR_ALT_6,
+            ].includes(tile.index)
+          ) {
+            // Randomly choose between 0, 90, -90 rotation
+            const rotation = Math.floor(Math.random() * 3);
+            if (rotation === 1) {
+              tile.rotation = Math.PI / 2; // 90 degrees
+            } else if (rotation === 2) {
+              tile.rotation = -Math.PI / 2; // -90 degrees
+            }
+          }
+        }
+      }
+    }
 
     // Create boundary walls as a separate static group
     this.boundaries = this.scene.physics.add.staticGroup();
@@ -193,14 +226,14 @@ export class MapGenerator {
     );
   }
 
-  private mapToPixel(mapX: number, mapY: number): { x: number; y: number } {
+  public mapToPixel(mapX: number, mapY: number): { x: number; y: number } {
     return {
       x: mapX * this.tileSize + this.tileSize / 2,
       y: mapY * this.tileSize + this.tileSize / 2,
     };
   }
 
-  private pixelToMap(pixelX: number, pixelY: number): { x: number; y: number } {
+  public pixelToMap(pixelX: number, pixelY: number): { x: number; y: number } {
     return {
       x: Math.floor(pixelX / this.tileSize),
       y: Math.floor(pixelY / this.tileSize),

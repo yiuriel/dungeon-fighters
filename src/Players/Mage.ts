@@ -3,6 +3,7 @@ import { ManaBar } from "../Common/ManaBar";
 import { MageBasicSpell } from "../Spells/MageBasicSpell";
 import { MageProjectileSpell } from "../Spells/MageProjectileSpell";
 import { MageTeleportSpell } from "../Spells/MageTeleportSpell";
+import { MapGenerator } from "../Map/MapGenerator";
 
 export class Mage extends Player {
   private mana: number;
@@ -29,11 +30,14 @@ export class Mage extends Player {
   manaRegenTimer: Phaser.Time.TimerEvent;
   manaBar: ManaBar;
 
+  mapGenerator: MapGenerator;
+
   constructor(
     scene: Phaser.Scene,
     x: number,
     y: number,
     texture: string,
+    mapGenerator: MapGenerator,
     frame?: string | number,
     health?: number,
     speed?: number,
@@ -73,6 +77,8 @@ export class Mage extends Player {
       callbackScope: this,
       loop: true,
     });
+
+    this.mapGenerator = mapGenerator;
   }
 
   updateSpecific(): void {
@@ -155,22 +161,12 @@ export class Mage extends Player {
       let targetX = this.x;
       let targetY = this.y;
 
-      if (this.getFacing() === "up") {
-        targetY -= this.teleportDistance;
-      } else if (this.getFacing() === "down") {
-        targetY += this.teleportDistance;
-      } else if (this.getFacing() === "left") {
-        targetX -= this.teleportDistance;
-      } else if (this.getFacing() === "right") {
-        targetX += this.teleportDistance;
-      }
-
       const canTeleport = MageTeleportSpell.canTeleport(
-        this.scene,
         this.getFacing(),
         this.teleportDistance,
         targetX,
-        targetY
+        targetY,
+        this.mapGenerator
       );
 
       if (canTeleport) {
@@ -195,8 +191,8 @@ export class Mage extends Player {
           duration: 350,
           onComplete: () => {
             // Teleport the player
-            this.x = targetX;
-            this.y = targetY;
+            this.x = canTeleport.x;
+            this.y = canTeleport.y;
 
             // End teleport effect at the destination
             spell.endTeleport(this.x, this.y);

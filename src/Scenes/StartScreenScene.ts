@@ -3,6 +3,7 @@ import { WINDOW_CENTER, WINDOW_HEIGHT, WINDOW_WIDTH } from "../constants";
 import { FireMage } from "../Players/FireMage";
 import { Mage } from "../Players/Mage";
 import { Player } from "../Players/Player";
+import { MapGenerator } from "../Map/MapGenerator";
 
 export default class StartScreenScene extends Phaser.Scene {
   constructor() {
@@ -159,6 +160,7 @@ export default class StartScreenScene extends Phaser.Scene {
         x,
         y,
         "mage",
+        new MapGenerator(this),
         undefined,
         undefined,
         undefined,

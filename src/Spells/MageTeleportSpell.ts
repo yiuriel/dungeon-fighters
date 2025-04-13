@@ -1,5 +1,6 @@
 import Phaser from "phaser";
 import { Mage } from "../Players/Mage";
+import { MapGenerator } from "../Map/MapGenerator";
 
 export class MageTeleportSpell extends Phaser.GameObjects.Sprite {
   private caster: Mage;
@@ -18,12 +19,12 @@ export class MageTeleportSpell extends Phaser.GameObjects.Sprite {
   }
 
   public static canTeleport(
-    scene: Phaser.Scene,
     facing: string,
     teleportDistance: number,
     targetX: number,
-    targetY: number
-  ): boolean {
+    targetY: number,
+    mapGenerator: MapGenerator
+  ): { x: number; y: number } | null {
     // Calculate target position based on facing direction
     if (facing === "up") {
       targetY -= teleportDistance;
@@ -36,38 +37,43 @@ export class MageTeleportSpell extends Phaser.GameObjects.Sprite {
     }
 
     // Check for wall collisions at the target position
-    const walls = scene.physics.world.staticBodies.getArray();
-    // Get the map boundaries
-    const mapWidth = scene.cameras.main.width;
-    const mapHeight = scene.cameras.main.height;
-    const wallThickness = 20;
+    // Convert target position to map coordinates
+    const mapPosition = mapGenerator.pixelToMap(targetX, targetY);
+
+    // Get map dimensions
+    const mapWidth = mapGenerator.getMapWidth();
+    const mapHeight = mapGenerator.getMapHeight();
 
     // Check if teleport destination is within map bounds
     const withinBounds =
-      targetX >= wallThickness &&
-      targetX <= mapWidth - wallThickness &&
-      targetY >= wallThickness &&
-      targetY <= mapHeight - wallThickness;
+      mapPosition.x > 1 &&
+      mapPosition.x < mapWidth - 2 &&
+      mapPosition.y > 1 &&
+      mapPosition.y < mapHeight - 2;
 
-    // Check for wall collisions
-    const noWallCollisions = !walls.some((wall) => {
-      const wallBody = wall.gameObject.body;
-      return (
-        wallBody &&
-        wallBody instanceof Phaser.Physics.Arcade.Body &&
-        Phaser.Geom.Rectangle.Overlaps(
-          new Phaser.Geom.Rectangle(targetX - 8, targetY - 12, 16, 24),
-          new Phaser.Geom.Rectangle(
-            wallBody.x,
-            wallBody.y,
-            wallBody.width,
-            wallBody.height
-          )
+    // Check if the target position is in a room (which is valid for teleporting)
+    // or collides with a boundary
+    const boundaries = mapGenerator.getBoundaries();
+    const tileSize = mapGenerator.getTileSize();
+
+    // Check for boundary collisions
+    const noWallCollisions = !boundaries.getChildren().some((wall: any) => {
+      return Phaser.Geom.Rectangle.Overlaps(
+        new Phaser.Geom.Rectangle(targetX - 8, targetY - 12, 16, 24),
+        new Phaser.Geom.Rectangle(
+          wall.x - tileSize / 2,
+          wall.y - tileSize / 2,
+          tileSize,
+          tileSize
         )
       );
     });
 
-    return withinBounds && noWallCollisions;
+    if (withinBounds && noWallCollisions) {
+      return { x: targetX, y: targetY };
+    } else {
+      return null;
+    }
   }
 
   private createAnimations(): void {
