@@ -2,6 +2,7 @@ import { Status } from "../Common/Status";
 import { MapGenerator, TileType } from "../Map/MapGenerator";
 import { Player } from "../Players/Player";
 import * as pf from "pathfinding";
+import { HealthBar } from "../Common/HealthBar";
 
 export abstract class Enemy extends Phaser.Physics.Arcade.Sprite {
   protected health: number;
@@ -21,6 +22,8 @@ export abstract class Enemy extends Phaser.Physics.Arcade.Sprite {
 
   protected path: number[][] = [];
   protected pathCooldownRecalc: boolean = false;
+
+  protected healthBar: HealthBar;
 
   constructor(
     scene: Phaser.Scene,
@@ -67,9 +70,19 @@ export abstract class Enemy extends Phaser.Physics.Arcade.Sprite {
     this.setDepth(10);
 
     this.createAnimations();
+
+    this.healthBar = new HealthBar(
+      scene,
+      this,
+      this.health,
+      undefined,
+      undefined,
+      -15
+    );
   }
 
   update(): void {
+    this.healthBar.update();
     this.handleMovement();
     this.updateSpecific();
   }
@@ -179,6 +192,10 @@ export abstract class Enemy extends Phaser.Physics.Arcade.Sprite {
     this.takingDamage = true;
     this.health -= amount;
 
+    if (this.healthBar && this.healthBar.bar.active) {
+      this.healthBar.setHealth(this.health);
+    }
+
     if (statusType === "fire") {
       this.tint = 0xffa500; // Orange for fire status
     } else {
@@ -186,6 +203,7 @@ export abstract class Enemy extends Phaser.Physics.Arcade.Sprite {
     }
 
     if (this.health <= 0) {
+      this.healthBar.destroy();
       this.destroy();
     }
 

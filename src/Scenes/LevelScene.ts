@@ -16,6 +16,9 @@ export default class LevelScene extends Phaser.Scene {
   private overlapSpells!: Phaser.Physics.Arcade.Group;
   private collideSpells!: Phaser.Physics.Arcade.Group;
   private mapGenerator: MapGenerator;
+  private player!: Player;
+  private currentLevel: number = 1;
+  private levelTransitionCooldown: boolean = false;
 
   constructor() {
     super("LevelScene");
@@ -27,9 +30,31 @@ export default class LevelScene extends Phaser.Scene {
     this.mapGenerator.preload();
   }
 
-  create() {
+  prepareLevel() {
+    this.mapGenerator.resetMap();
+
+    // Clear existing content
+    this.children.removeAll();
+    this.physics.world.colliders.destroy();
+
     // Create a simple bounded area with walls
     this.mapGenerator.generateMap();
+
+    if (this.players) {
+      this.players.clear(true, true);
+    }
+
+    if (this.enemies) {
+      this.enemies.clear(true, true);
+    }
+
+    if (this.overlapSpells) {
+      this.overlapSpells.clear(true, true);
+    }
+
+    if (this.collideSpells) {
+      this.collideSpells.clear(true, true);
+    }
 
     // Create players group
     this.players = this.physics.add.group();
@@ -44,6 +69,7 @@ export default class LevelScene extends Phaser.Scene {
       player = new Mage(this, x, y, "player", this.mapGenerator);
     }
     this.players.add(player);
+    this.player = player;
 
     // Create enemies group
     this.enemies = this.physics.add.group();
@@ -51,6 +77,21 @@ export default class LevelScene extends Phaser.Scene {
     // Create spells group
     this.overlapSpells = this.physics.add.group();
     this.collideSpells = this.physics.add.group();
+
+    // Set up camera to follow the player
+    this.physics.world.setBounds(
+      0,
+      0,
+      this.mapGenerator.getMapRealWidth(),
+      this.mapGenerator.getMapRealHeight()
+    );
+    this.cameras.main.startFollow(this.player, true, 0.5, 0.5);
+    this.cameras.main.setBounds(
+      0,
+      0,
+      this.mapGenerator.getMapRealWidth(),
+      this.mapGenerator.getMapRealHeight()
+    );
 
     // Listen for spell cast events
     this.events.on("spellCast", (spell: any) => {
@@ -66,7 +107,7 @@ export default class LevelScene extends Phaser.Scene {
     });
 
     // Create some enemies
-    for (let i = 0; i < 8; i++) {
+    for (let i = 0; i < this.currentLevel * 2; i++) {
       const { x, y } = this.mapGenerator.getRandomNonRoomPosition();
       const spider = new Spider(this, x, y, this.mapGenerator);
       this.enemies.add(spider);
@@ -112,23 +153,29 @@ export default class LevelScene extends Phaser.Scene {
       undefined,
       this
     );
-    // Set up camera to follow the player
-    this.physics.world.setBounds(
-      0,
-      0,
-      this.mapGenerator.getMapRealWidth(),
-      this.mapGenerator.getMapRealHeight()
-    );
-    this.cameras.main.startFollow(player, true, 0.5, 0.5);
-    this.cameras.main.setBounds(
-      0,
-      0,
-      this.mapGenerator.getMapRealWidth(),
-      this.mapGenerator.getMapRealHeight()
-    );
+  }
+
+  create() {
+    this.prepareLevel();
   }
 
   update() {
+    // Check if all enemies are defeated
+    if (
+      this.enemies &&
+      this.enemies.getChildren().length === 0 &&
+      !this.levelTransitionCooldown
+    ) {
+      this.levelTransitionCooldown = true;
+      // Increase level
+      this.currentLevel++;
+
+      this.time.delayedCall(1000, () => {
+        this.prepareLevel();
+        this.levelTransitionCooldown = false;
+      });
+    }
+
     // Update players
     this.players.getChildren().forEach((player) => {
       if (player instanceof Player) {

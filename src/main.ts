@@ -13,10 +13,12 @@ const config: Phaser.Types.Core.GameConfig = {
     default: "arcade",
     arcade: {
       gravity: { y: 0, x: 0 },
-      debug: false,
+      debug: true,
     },
   },
   pixelArt: true,
+  roundPixels: true,
+  antialias: false,
   scale: {
     mode: Phaser.Scale.FIT,
     autoCenter: Phaser.Scale.CENTER_BOTH,
