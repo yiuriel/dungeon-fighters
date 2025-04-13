@@ -8,6 +8,7 @@ export class Status {
   private scene: Phaser.Scene;
   private tickTimer?: Phaser.Time.TimerEvent;
   private isActive: boolean = false;
+  private onStatusFinished: () => void;
 
   constructor(
     scene: Phaser.Scene,
@@ -15,7 +16,8 @@ export class Status {
     type: string,
     damage: number,
     duration: number,
-    tickInterval: number
+    tickInterval: number,
+    onStatusFinished: () => void
   ) {
     this.scene = scene;
     this.target = target;
@@ -24,6 +26,7 @@ export class Status {
     this.duration = duration;
     this.tickInterval = tickInterval;
     this.remainingDuration = duration;
+    this.onStatusFinished = onStatusFinished;
   }
 
   public apply(): void {
@@ -64,6 +67,7 @@ export class Status {
       this.tickTimer = undefined;
     }
     this.isActive = false;
+    this.onStatusFinished();
   }
 
   public getType(): string {

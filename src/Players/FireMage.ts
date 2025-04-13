@@ -17,7 +17,7 @@ export class FireMage extends Player {
   private fireCircleCooldown: boolean = false;
   private fireCircleLifespan: number = 1000;
   private fireCircleDamage: number = 10;
-  private fireCircleManaCost: number = 20;
+  private fireCircleManaCost: number = 40;
 
   private fireOrbKey: Phaser.Input.Keyboard.Key;
   private fireOrbCooldown: boolean = false;

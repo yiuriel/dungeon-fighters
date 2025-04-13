@@ -109,11 +109,22 @@ export abstract class Enemy extends Phaser.Physics.Arcade.Sprite {
       return;
     }
 
-    this.status = status;
+    if (!this.status) {
+      this.status = status;
+      this.status?.apply();
+    }
+
+    const statusType = this.status?.getType();
 
     this.takingDamage = true;
     this.health -= amount;
-    this.tint = 0xff0000;
+
+    if (statusType === "fire") {
+      this.tint = 0xffa500; // Orange for fire status
+    } else {
+      this.tint = 0xff0000; // Red for normal damage
+    }
+
     if (this.health <= 0) {
       this.destroy();
     }
@@ -123,6 +134,10 @@ export abstract class Enemy extends Phaser.Physics.Arcade.Sprite {
         this.takingDamage = false;
         this.tint = 0xffffff;
       });
+  }
+
+  public onStatusFinished(): void {
+    this.status = null;
   }
 
   public doDamage(): number {
@@ -145,6 +160,10 @@ export abstract class Enemy extends Phaser.Physics.Arcade.Sprite {
 
   public getPrefix(): string {
     return this.prefix;
+  }
+
+  public getTakingDamageDuration(): number {
+    return this.takingDamageDuration;
   }
 
   createAnimations(): void {

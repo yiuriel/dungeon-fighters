@@ -181,7 +181,17 @@ export default class LevelScene extends Phaser.Scene {
       if (spell.anims.currentAnim?.key === spell.getActiveAnimationKey()) {
         enemy.takeDamage(
           spell.getDamage(),
-          new Status(this, enemy, "fire", 2, 5000, 500)
+          new Status(
+            this,
+            enemy,
+            "fire",
+            5,
+            5000,
+            enemy.getTakingDamageDuration(),
+            () => {
+              enemy.onStatusFinished();
+            }
+          )
         );
       }
     }

@@ -18,17 +18,22 @@ export class FireMageFireCircle extends Phaser.Physics.Arcade.Sprite {
     this.setVelocity(0, 0);
     this.setScale(2);
 
+    if (this.body) {
+      this.body.setSize(80, 80);
+      this.body.setOffset(8, 8);
+    }
+
     this.createAnimations();
 
     this.play(this.getStartAnimationKey()).once("animationcomplete", () => {
-      this.play({ key: this.getActiveAnimationKey(), duration: 1000 }).once(
-        "animationcomplete",
-        () => {
-          this.play(this.getEndAnimationKey()).once("animationcomplete", () => {
-            this.destroy();
-          });
-        }
-      );
+      this.play({
+        key: this.getActiveAnimationKey(),
+        repeat: 6,
+      }).once("animationcomplete", () => {
+        this.play(this.getEndAnimationKey()).once("animationcomplete", () => {
+          this.destroy();
+        });
+      });
     });
   }
 
@@ -65,7 +70,6 @@ export class FireMageFireCircle extends Phaser.Physics.Arcade.Sprite {
         start: 4,
         end: 5,
       }),
-      duration: 1000,
       frameRate: 16,
       repeat: 0,
     });
