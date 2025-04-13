@@ -19,6 +19,9 @@ export abstract class Enemy extends Phaser.Physics.Arcade.Sprite {
   protected grid: pf.Grid;
   protected pathfinder: pf.AStarFinder;
 
+  protected path: number[][] = [];
+  protected pathCooldownRecalc: boolean = false;
+
   constructor(
     scene: Phaser.Scene,
     x: number,
@@ -79,17 +82,29 @@ export abstract class Enemy extends Phaser.Physics.Arcade.Sprite {
       .getChildren()
       .find((child) => child instanceof Player);
 
-    const path = this.pathfinder.findPath(
-      Math.floor(this.x / this.mapGenerator.getTileSize()),
-      Math.floor(this.y / this.mapGenerator.getTileSize()),
-      Math.floor(player!.x / this.mapGenerator.getTileSize()),
-      Math.floor(player!.y / this.mapGenerator.getTileSize()),
-      this.grid.clone()
-    );
+    if (!this.pathCooldownRecalc) {
+      this.path = this.pathfinder.findPath(
+        Math.floor(this.x / this.mapGenerator.getTileSize()),
+        Math.floor(this.y / this.mapGenerator.getTileSize()),
+        Math.floor(player!.x / this.mapGenerator.getTileSize()),
+        Math.floor(player!.y / this.mapGenerator.getTileSize()),
+        this.grid.clone()
+      );
 
-    if (player && path && path.length > 1) {
+      this.scene.time.addEvent({
+        delay: 500,
+        callback: () => {
+          this.pathCooldownRecalc = false;
+        },
+        callbackScope: this,
+      });
+    }
+
+    this.pathCooldownRecalc = true;
+
+    if (player && this.path && this.path.length > 1) {
       // Get the next point in the path (index 1 since 0 is the current position)
-      const nextPoint = path[1];
+      const nextPoint = this.path[1];
       const nextX =
         nextPoint[0] * this.mapGenerator.getTileSize() +
         this.mapGenerator.getTileSize() / 2;
