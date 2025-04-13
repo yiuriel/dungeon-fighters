@@ -1,5 +1,7 @@
 import { Status } from "../Common/Status";
+import { MapGenerator, TileType } from "../Map/MapGenerator";
 import { Player } from "../Players/Player";
+import * as pf from "pathfinding";
 
 export abstract class Enemy extends Phaser.Physics.Arcade.Sprite {
   protected health: number;
@@ -13,11 +15,16 @@ export abstract class Enemy extends Phaser.Physics.Arcade.Sprite {
   protected takingDamageDuration: number = 1000;
   protected status: Status | null = null;
 
+  protected mapGenerator: MapGenerator;
+  protected grid: pf.Grid;
+  protected pathfinder: pf.AStarFinder;
+
   constructor(
     scene: Phaser.Scene,
     x: number,
     y: number,
     texture: string,
+    mapGenerator: MapGenerator,
     prefix: string,
     frame?: string | number,
     health?: number,
@@ -25,6 +32,27 @@ export abstract class Enemy extends Phaser.Physics.Arcade.Sprite {
     damage?: number
   ) {
     super(scene, x, y, texture, frame);
+
+    this.mapGenerator = mapGenerator;
+    this.grid = new pf.Grid(
+      this.mapGenerator.getMapWidth(),
+      this.mapGenerator.getMapHeight()
+    );
+    this.pathfinder = new pf.AStarFinder();
+
+    // Initialize the grid with walkability data from the map
+    const map = this.mapGenerator.getMap();
+    for (let y = 0; y < map.length; y++) {
+      for (let x = 0; x < map[y].length; x++) {
+        // If the tile is 0 or not a wall/boundary, mark it as walkable
+        if (map[y][x] <= TileType.FLOOR_ALT_5) {
+          this.grid.setWalkableAt(x, y, true);
+        } else {
+          this.grid.setWalkableAt(x, y, false);
+        }
+      }
+    }
+
     scene.add.existing(this);
     scene.physics.add.existing(this);
 
@@ -51,10 +79,27 @@ export abstract class Enemy extends Phaser.Physics.Arcade.Sprite {
       .getChildren()
       .find((child) => child instanceof Player);
 
-    if (player) {
-      // Move towards player
-      const dx = player.x - this.x;
-      const dy = player.y - this.y;
+    const path = this.pathfinder.findPath(
+      Math.floor(this.x / this.mapGenerator.getTileSize()),
+      Math.floor(this.y / this.mapGenerator.getTileSize()),
+      Math.floor(player!.x / this.mapGenerator.getTileSize()),
+      Math.floor(player!.y / this.mapGenerator.getTileSize()),
+      this.grid.clone()
+    );
+
+    if (player && path && path.length > 1) {
+      // Get the next point in the path (index 1 since 0 is the current position)
+      const nextPoint = path[1];
+      const nextX =
+        nextPoint[0] * this.mapGenerator.getTileSize() +
+        this.mapGenerator.getTileSize() / 2;
+      const nextY =
+        nextPoint[1] * this.mapGenerator.getTileSize() +
+        this.mapGenerator.getTileSize() / 2;
+
+      // Calculate direction to the next point in the path
+      const dx = nextX - this.x;
+      const dy = nextY - this.y;
       const angle = Math.atan2(dy, dx);
 
       this.setVelocityX(Math.cos(angle) * this.speed);

@@ -2,14 +2,13 @@ import Phaser from "phaser";
 import { WINDOW_WIDTH, WINDOW_HEIGHT } from "../constants";
 
 // Tile type constants
-enum TileType {
+export enum TileType {
   FLOOR = 1,
   FLOOR_ALT_1 = 2,
   FLOOR_ALT_2 = 3,
   FLOOR_ALT_3 = 5,
   FLOOR_ALT_4 = 6,
   FLOOR_ALT_5 = 7,
-  FLOOR_ALT_6 = 11,
   WALL_TOP = 25,
   WALL_RIGHT = 30,
   WALL_BOTTOM = 37,
@@ -80,6 +79,10 @@ export class MapGenerator {
     return this.tileSize;
   }
 
+  public getMap(): number[][] {
+    return this.map;
+  }
+
   public generateMap(): void {
     // Create empty map grid filled with random floor tiles
     this.map = Array(this.mapHeight)
@@ -121,7 +124,6 @@ export class MapGenerator {
               TileType.FLOOR_ALT_3,
               TileType.FLOOR_ALT_4,
               TileType.FLOOR_ALT_5,
-              TileType.FLOOR_ALT_6,
             ].includes(tile.index)
           ) {
             // Randomly choose between 0, 90, -90 rotation
@@ -164,6 +166,7 @@ export class MapGenerator {
         TileType.WALL_TOP
       );
       wall.setSize(this.tileSize, this.tileSize);
+      this.map[0][x] = TileType.WALL_TOP;
     }
 
     // Bottom boundary
@@ -175,6 +178,7 @@ export class MapGenerator {
         TileType.WALL_BOTTOM
       );
       wall.setSize(this.tileSize, this.tileSize);
+      this.map[this.mapHeight - 1][x] = TileType.WALL_BOTTOM;
     }
 
     // Left boundary
@@ -186,6 +190,7 @@ export class MapGenerator {
         TileType.WALL_LEFT
       );
       wall.setSize(this.tileSize, this.tileSize);
+      this.map[y][0] = TileType.WALL_LEFT;
     }
 
     // Right boundary
@@ -197,6 +202,7 @@ export class MapGenerator {
         TileType.WALL_RIGHT
       );
       wall.setSize(this.tileSize, this.tileSize);
+      this.map[y][this.mapWidth - 1] = TileType.WALL_RIGHT;
     }
 
     // Corners
@@ -206,24 +212,29 @@ export class MapGenerator {
       "tiles",
       TileType.WALL_CORNER_TOP_LEFT
     );
+    this.map[0][0] = TileType.WALL_CORNER_TOP_LEFT;
     this.boundaries.create(
       (this.mapWidth - 1) * this.tileSize + this.tileSize / 2,
       this.tileSize / 2,
       "tiles",
       TileType.WALL_CORNER_TOP_RIGHT
     );
+    this.map[0][this.mapWidth - 1] = TileType.WALL_CORNER_TOP_RIGHT;
     this.boundaries.create(
       this.tileSize / 2,
       (this.mapHeight - 1) * this.tileSize + this.tileSize / 2,
       "tiles",
       TileType.WALL_CORNER_BOTTOM_LEFT
     );
+    this.map[this.mapHeight - 1][0] = TileType.WALL_CORNER_BOTTOM_LEFT;
     this.boundaries.create(
       (this.mapWidth - 1) * this.tileSize + this.tileSize / 2,
       (this.mapHeight - 1) * this.tileSize + this.tileSize / 2,
       "tiles",
       TileType.WALL_CORNER_BOTTOM_RIGHT
     );
+    this.map[this.mapHeight - 1][this.mapWidth - 1] =
+      TileType.WALL_CORNER_BOTTOM_RIGHT;
   }
 
   public mapToPixel(mapX: number, mapY: number): { x: number; y: number } {
@@ -266,7 +277,7 @@ export class MapGenerator {
       // Check if this position is not in a room (not a ROOM_TILE_ID)
       if (
         this.map[mapPos.y] &&
-        this.map[mapPos.y][mapPos.x] !== this.ROOM_TILE_ID
+        this.map[mapPos.y][mapPos.x] < TileType.ROOM_TOP_LEFT
       ) {
         isValidPosition = true;
       }
@@ -281,7 +292,7 @@ export class MapGenerator {
     return { x, y };
   }
 
-  private readonly ROOM_TILE_ID = 2;
+  private readonly ROOM_TILE_ID = 100;
 
   private createRoom(
     startX: number,
@@ -296,6 +307,7 @@ export class MapGenerator {
       "tiles",
       TileType.ROOM_TOP_LEFT
     );
+    this.map[startY][startX] = TileType.ROOM_TOP_LEFT;
 
     for (let x = 1; x < width - 1; x++) {
       this.boundaries.create(
@@ -304,6 +316,7 @@ export class MapGenerator {
         "tiles",
         TileType.ROOM_TOP
       );
+      this.map[startY][startX + x] = TileType.ROOM_TOP;
     }
 
     this.boundaries.create(
@@ -312,6 +325,7 @@ export class MapGenerator {
       "tiles",
       TileType.ROOM_TOP_RIGHT
     );
+    this.map[startY][startX + width - 1] = TileType.ROOM_TOP_RIGHT;
 
     // Middle rows
     for (let y = 1; y < height - 1; y++) {
@@ -322,6 +336,7 @@ export class MapGenerator {
         "tiles",
         TileType.ROOM_LEFT
       );
+      this.map[startY + y][startX] = TileType.ROOM_LEFT;
 
       // Room interior - only ROOM_EMPTY
       for (let x = 1; x < width - 1; x++) {
@@ -333,7 +348,7 @@ export class MapGenerator {
         );
 
         // Mark room tiles in the map
-        this.map[startY + y][startX + x] = this.ROOM_TILE_ID;
+        this.map[startY + y][startX + x] = TileType.ROOM_EMPTY;
       }
 
       // Right side
@@ -343,6 +358,7 @@ export class MapGenerator {
         "tiles",
         TileType.ROOM_RIGHT
       );
+      this.map[startY + y][startX + width - 1] = TileType.ROOM_RIGHT;
     }
 
     // Bottom row
@@ -352,6 +368,7 @@ export class MapGenerator {
       "tiles",
       TileType.ROOM_BOTTOM_LEFT
     );
+    this.map[startY + height - 1][startX] = TileType.ROOM_BOTTOM_LEFT;
 
     for (let x = 1; x < width - 1; x++) {
       this.boundaries.create(
@@ -360,6 +377,7 @@ export class MapGenerator {
         "tiles",
         TileType.ROOM_BOTTOM
       );
+      this.map[startY + height - 1][startX + x] = TileType.ROOM_BOTTOM;
     }
 
     this.boundaries.create(
@@ -368,6 +386,8 @@ export class MapGenerator {
       "tiles",
       TileType.ROOM_BOTTOM_RIGHT
     );
+    this.map[startY + height - 1][startX + width - 1] =
+      TileType.ROOM_BOTTOM_RIGHT;
 
     // Add wall tiles below bottom row
     this.boundaries.create(
@@ -376,6 +396,7 @@ export class MapGenerator {
       "tiles",
       TileType.ROOM_BOTTOM_LEFT_WALL
     );
+    this.map[startY + height][startX] = TileType.ROOM_BOTTOM_LEFT_WALL;
 
     for (let x = 1; x < width - 1; x++) {
       this.boundaries.create(
@@ -384,6 +405,7 @@ export class MapGenerator {
         "tiles",
         TileType.ROOM_BOTTOM_MIDDLE_WALL
       );
+      this.map[startY + height][startX + x] = TileType.ROOM_BOTTOM_MIDDLE_WALL;
     }
 
     this.boundaries.create(
@@ -392,6 +414,8 @@ export class MapGenerator {
       "tiles",
       TileType.ROOM_BOTTOM_RIGHT_WALL
     );
+    this.map[startY + height][startX + width - 1] =
+      TileType.ROOM_BOTTOM_RIGHT_WALL;
   }
 
   public getRoomTileId(): number {
@@ -506,6 +530,6 @@ export class MapGenerator {
     if (random < 0.9) return TileType.FLOOR_ALT_3;
     if (random < 0.95) return TileType.FLOOR_ALT_4;
     if (random < 0.99) return TileType.FLOOR_ALT_5;
-    return TileType.FLOOR_ALT_6;
+    return TileType.FLOOR;
   }
 }

@@ -66,9 +66,9 @@ export default class LevelScene extends Phaser.Scene {
     });
 
     // Create some enemies
-    for (let i = 0; i < 5; i++) {
+    for (let i = 0; i < 8; i++) {
       const { x, y } = this.mapGenerator.getRandomNonRoomPosition();
-      const spider = new Spider(this, x, y);
+      const spider = new Spider(this, x, y, this.mapGenerator);
       this.enemies.add(spider);
     }
 

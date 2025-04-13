@@ -1,6 +1,7 @@
 import Phaser from "phaser";
 import { Enemy } from "./Enemy";
 import { HealthBar } from "../Common/HealthBar";
+import { MapGenerator } from "../Map/MapGenerator";
 
 export default class Spider extends Enemy {
   healthBar: HealthBar;
@@ -9,9 +10,10 @@ export default class Spider extends Enemy {
     scene: Phaser.Scene,
     x: number,
     y: number,
+    mapGenerator: MapGenerator,
     frame?: string | number
   ) {
-    super(scene, x, y, "spider", "spider", frame, 50, 30, 5);
+    super(scene, x, y, "spider", mapGenerator, "spider", frame, 50, 30, 5);
 
     // Set up a smaller collision box at the bottom of the sprite
     if (this.body) {

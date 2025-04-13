@@ -17,7 +17,7 @@ export class Mage extends Player {
 
   private projectileSpellKey: Phaser.Input.Keyboard.Key;
   private projectileSpellCooldown: boolean = false;
-  private projectileSpellLifespan: number = 1000;
+  private projectileSpellLifespan: number = 750;
   private projectileSpellDamage: number = 30;
   private projectileSpellManaCost: number = 25;
 
