@@ -9,51 +9,28 @@ import { MageProjectileSpell } from "../Spells/MageProjectileSpell";
 import { FireMage } from "../Players/FireMage";
 import { FireMageFireCircle } from "../Spells/FireMageFireCircle";
 import { Status } from "../Common/Status";
+import { MapGenerator } from "../Map/MapGenerator";
 
 export default class LevelScene extends Phaser.Scene {
   private players!: Phaser.Physics.Arcade.Group;
   private enemies!: Phaser.Physics.Arcade.Group;
-  private walls!: Phaser.Physics.Arcade.StaticGroup;
   private overlapSpells!: Phaser.Physics.Arcade.Group;
   private collideSpells!: Phaser.Physics.Arcade.Group;
+  private mapGenerator: MapGenerator;
 
   constructor() {
     super("LevelScene");
+
+    this.mapGenerator = new MapGenerator(this);
+  }
+
+  preload() {
+    this.mapGenerator.preload();
   }
 
   create() {
     // Create a simple bounded area with walls
-    this.walls = this.physics.add.staticGroup();
-
-    // Create boundary walls (top, right, bottom, left)
-    const mapWidth = this.cameras.main.width;
-    const mapHeight = this.cameras.main.height;
-    const wallThickness = 20;
-
-    // Top wall - positioned exactly at the edge
-    // Top wall
-    this.walls
-      .create(mapWidth / 2, wallThickness / 2, "tiles")
-      .setScale(mapWidth / 32, wallThickness / 32)
-      .refreshBody();
-
-    // Bottom wall
-    this.walls
-      .create(mapWidth / 2, mapHeight - wallThickness / 2, "tiles")
-      .setScale(mapWidth / 32, wallThickness / 32)
-      .refreshBody();
-
-    // Left wall
-    this.walls
-      .create(wallThickness / 2, mapHeight / 2, "tiles")
-      .setScale(wallThickness / 32, mapHeight / 32)
-      .refreshBody();
-
-    // Right wall
-    this.walls
-      .create(mapWidth - wallThickness / 2, mapHeight / 2, "tiles")
-      .setScale(wallThickness / 32, mapHeight / 32)
-      .refreshBody();
+    this.mapGenerator.generateMap();
 
     // Create players group
     this.players = this.physics.add.group();
@@ -88,19 +65,34 @@ export default class LevelScene extends Phaser.Scene {
       this.overlapSpells.add(fireCircle);
     });
 
+    console.log(this.mapGenerator.getMapRealWidth());
+    console.log(this.mapGenerator.getMapRealHeight());
+
     // Create some enemies
     for (let i = 0; i < 5; i++) {
-      const x = Phaser.Math.Between(100, mapWidth - 100);
-      const y = Phaser.Math.Between(100, mapHeight - 100);
+      const x = Phaser.Math.Between(
+        100,
+        this.mapGenerator.getMapRealWidth() - 100
+      );
+      const y = Phaser.Math.Between(
+        100,
+        this.mapGenerator.getMapRealHeight() - 100
+      );
       const spider = new Spider(this, x, y);
       this.enemies.add(spider);
     }
 
     // Set up collisions
-    this.physics.add.collider(this.players, this.walls);
-    this.physics.add.collider(this.enemies, this.walls);
-    this.physics.add.collider(this.overlapSpells, this.walls);
-    this.physics.add.collider(this.collideSpells, this.walls);
+    this.physics.add.collider(this.players, this.mapGenerator.getBoundaries());
+    this.physics.add.collider(this.enemies, this.mapGenerator.getBoundaries());
+    this.physics.add.collider(
+      this.overlapSpells,
+      this.mapGenerator.getBoundaries()
+    );
+    this.physics.add.collider(
+      this.collideSpells,
+      this.mapGenerator.getBoundaries()
+    );
 
     this.physics.add.collider(
       this.enemies,
@@ -131,9 +123,19 @@ export default class LevelScene extends Phaser.Scene {
       this
     );
     // Set up camera to follow the player
-    this.physics.world.setBounds(0, 0, mapWidth, mapHeight);
+    this.physics.world.setBounds(
+      0,
+      0,
+      this.mapGenerator.getMapRealWidth(),
+      this.mapGenerator.getMapRealHeight()
+    );
     this.cameras.main.startFollow(player, true, 0.5, 0.5);
-    this.cameras.main.setBounds(0, 0, mapWidth, mapHeight);
+    this.cameras.main.setBounds(
+      0,
+      0,
+      this.mapGenerator.getMapWidth(),
+      this.mapGenerator.getMapHeight()
+    );
   }
 
   update() {
