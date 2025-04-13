@@ -1,15 +1,14 @@
 import Phaser from "phaser";
-import { WINDOW_CENTER } from "../constants";
+import { Status } from "../Common/Status";
 import { Enemy } from "../Enemies/Enemy";
 import Spider from "../Enemies/Spider";
+import { MapGenerator } from "../Map/MapGenerator";
+import { FireMage } from "../Players/FireMage";
 import { Mage } from "../Players/Mage";
 import { Player } from "../Players/Player";
+import { FireMageFireCircle } from "../Spells/FireMageFireCircle";
 import { MageBasicSpell } from "../Spells/MageBasicSpell";
 import { MageProjectileSpell } from "../Spells/MageProjectileSpell";
-import { FireMage } from "../Players/FireMage";
-import { FireMageFireCircle } from "../Spells/FireMageFireCircle";
-import { Status } from "../Common/Status";
-import { MapGenerator } from "../Map/MapGenerator";
 
 export default class LevelScene extends Phaser.Scene {
   private players!: Phaser.Physics.Arcade.Group;
@@ -38,10 +37,11 @@ export default class LevelScene extends Phaser.Scene {
     // Create player in the center
     const selectedCharacter = localStorage.getItem("selectedCharacter");
     let player: Player;
+    const { x, y } = this.mapGenerator.getRandomNonRoomPosition();
     if (selectedCharacter === "fire_mage") {
-      player = new FireMage(this, WINDOW_CENTER.x, WINDOW_CENTER.y, "player");
+      player = new FireMage(this, x, y, "player");
     } else {
-      player = new Mage(this, WINDOW_CENTER.x, WINDOW_CENTER.y, "player");
+      player = new Mage(this, x, y, "player");
     }
     this.players.add(player);
 
@@ -65,19 +65,9 @@ export default class LevelScene extends Phaser.Scene {
       this.overlapSpells.add(fireCircle);
     });
 
-    console.log(this.mapGenerator.getMapRealWidth());
-    console.log(this.mapGenerator.getMapRealHeight());
-
     // Create some enemies
     for (let i = 0; i < 5; i++) {
-      const x = Phaser.Math.Between(
-        100,
-        this.mapGenerator.getMapRealWidth() - 100
-      );
-      const y = Phaser.Math.Between(
-        100,
-        this.mapGenerator.getMapRealHeight() - 100
-      );
+      const { x, y } = this.mapGenerator.getRandomNonRoomPosition();
       const spider = new Spider(this, x, y);
       this.enemies.add(spider);
     }
@@ -133,8 +123,8 @@ export default class LevelScene extends Phaser.Scene {
     this.cameras.main.setBounds(
       0,
       0,
-      this.mapGenerator.getMapWidth(),
-      this.mapGenerator.getMapHeight()
+      this.mapGenerator.getMapRealWidth(),
+      this.mapGenerator.getMapRealHeight()
     );
   }
 
