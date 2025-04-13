@@ -239,4 +239,12 @@ export class Mage extends Player {
   getProjectileSpellLifespan(): number {
     return this.projectileSpellLifespan;
   }
+
+  destroy(fromScene?: boolean) {
+    // Mage-specific cleanup
+    this.manaBar.destroy();
+    this.manaRegenTimer.destroy();
+
+    super.destroy(fromScene); // This will trigger Player's destroy too
+  }
 }

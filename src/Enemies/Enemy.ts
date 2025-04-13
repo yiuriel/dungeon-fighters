@@ -95,7 +95,7 @@ export abstract class Enemy extends Phaser.Physics.Arcade.Sprite {
       .getChildren()
       .find((child) => child instanceof Player);
 
-    if (!this.pathCooldownRecalc) {
+    if (!this.pathCooldownRecalc && player && player.active) {
       this.path = this.pathfinder.findPath(
         Math.floor(this.x / this.mapGenerator.getTileSize()),
         Math.floor(this.y / this.mapGenerator.getTileSize()),

@@ -129,7 +129,7 @@ export class MapGenerator {
 
     // Create the layer with the tileset
     const layer = tilemap.createLayer(0, tileset, 0, 0);
-    tilemap.createLayer(0, rockTileset, 0, 0);
+    tilemap.createLayer(1, rockTileset, 0, 0);
 
     // Randomly rotate floor tiles
     for (let y = 0; y < this.mapHeight; y++) {
@@ -350,7 +350,7 @@ export class MapGenerator {
       y = (this.mapHeight * this.tileSize) / 2;
     }
 
-    return { x, y };
+    return { x: Math.round(x), y: Math.round(y) };
   }
 
   private readonly ROOM_TILE_ID = 100;

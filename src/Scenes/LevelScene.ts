@@ -153,6 +153,17 @@ export default class LevelScene extends Phaser.Scene {
       undefined,
       this
     );
+    // Create level indicator
+    this.add
+      .text(16, 16, `Level: ${this.currentLevel}`, {
+        fontSize: "26px",
+        color: "#ffffff",
+        fontStyle: "bold",
+        stroke: "#000000",
+        strokeThickness: 4,
+      })
+      .setScrollFactor(0)
+      .setDepth(100);
   }
 
   create() {

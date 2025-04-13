@@ -112,6 +112,7 @@ export abstract class Player extends Phaser.Physics.Arcade.Sprite {
     this.health -= amount;
     this.healthBar.setHealth(this.health);
     if (this.health <= 0) {
+      this.healthBar.destroy();
       this.destroy();
     }
   }
@@ -200,5 +201,11 @@ export abstract class Player extends Phaser.Physics.Arcade.Sprite {
       frameRate: 8,
       repeat: -1,
     });
+  }
+
+  destroy(fromScene?: boolean) {
+    this.healthBar.destroy();
+
+    super.destroy(fromScene); // Call Phaser's built-in destroy
   }
 }
