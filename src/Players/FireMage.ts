@@ -164,4 +164,12 @@ export class FireMage extends Player {
   getFireCircleLifespan(): number {
     return this.fireCircleLifespan;
   }
+
+  destroy(fromScene?: boolean) {
+    // FireMage-specific cleanup
+    this.manaBar.destroy();
+    this.manaRegenTimer.destroy();
+
+    super.destroy(fromScene); // This will trigger Player's destroy too
+  }
 }
