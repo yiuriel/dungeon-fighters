@@ -238,12 +238,12 @@ export abstract class Enemy extends Phaser.Physics.Arcade.Sprite {
     const map = this.mapGenerator.getMap();
     for (const point of line) {
       // Skip the starting and ending points
-      if (
-        (point.x === enemyMapPos.x && point.y === enemyMapPos.y) ||
-        (point.x === playerMapPos.x && point.y === playerMapPos.y)
-      ) {
-        continue;
-      }
+      // if (
+      //   (point.x === enemyMapPos.x && point.y === enemyMapPos.y) ||
+      //   (point.x === playerMapPos.x && point.y === playerMapPos.y)
+      // ) {
+      //   continue;
+      // }
 
       // Check if the point is out of bounds
       if (
