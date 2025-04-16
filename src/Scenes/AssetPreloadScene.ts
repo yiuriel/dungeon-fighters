@@ -41,7 +41,16 @@ export default class AssetPreloadScene extends Phaser.Scene {
       frameWidth: 32,
       frameHeight: 32,
     });
-    // Add more assets as needed
+
+    this.load.spritesheet("octopus", "assets/enemies/octopus.png", {
+      frameWidth: 32,
+      frameHeight: 32,
+    });
+
+    this.load.spritesheet("snake", "assets/enemies/snake.png", {
+      frameWidth: 32,
+      frameHeight: 32,
+    });
 
     this.load.spritesheet("mage", "assets/players/mage.png", {
       frameWidth: 24,

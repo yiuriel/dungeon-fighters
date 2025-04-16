@@ -9,6 +9,8 @@ import { Player } from "../Players/Player";
 import { FireMageFireCircle } from "../Spells/FireMageFireCircle";
 import { MageBasicSpell } from "../Spells/MageBasicSpell";
 import { MageProjectileSpell } from "../Spells/MageProjectileSpell";
+import Octopus from "../Enemies/Octopus";
+import Snake from "../Enemies/Snake";
 
 export default class LevelScene extends Phaser.Scene {
   private players!: Phaser.Physics.Arcade.Group;
@@ -109,8 +111,17 @@ export default class LevelScene extends Phaser.Scene {
     // Create some enemies
     for (let i = 0; i < this.currentLevel * 2; i++) {
       const { x, y } = this.mapGenerator.getRandomNonRoomPosition();
-      const spider = new Spider(this, x, y, this.mapGenerator);
-      this.enemies.add(spider);
+      const enemyType = Phaser.Math.Between(0, 2);
+      if (enemyType === 0) {
+        const spider = new Spider(this, x, y, this.mapGenerator);
+        this.enemies.add(spider);
+      } else if (enemyType === 1) {
+        const octopus = new Octopus(this, x, y, this.mapGenerator);
+        this.enemies.add(octopus);
+      } else {
+        const snake = new Snake(this, x, y, this.mapGenerator);
+        this.enemies.add(snake);
+      }
     }
 
     // Set up collisions

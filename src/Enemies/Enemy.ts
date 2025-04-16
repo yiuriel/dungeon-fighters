@@ -11,6 +11,8 @@ export abstract class Enemy extends Phaser.Physics.Arcade.Sprite {
   protected prefix: string;
   protected attackCooldown: boolean = false;
   protected attackDuration: number = 1000;
+  protected distanceAttackRange: number = 0; // Default to 0 (no distance attack)
+  protected distanceAttackCooldown: boolean = false;
 
   protected takingDamage: boolean = false;
   protected takingDamageDuration: number = 1000;
@@ -35,7 +37,8 @@ export abstract class Enemy extends Phaser.Physics.Arcade.Sprite {
     frame?: string | number,
     health?: number,
     speed?: number,
-    damage?: number
+    damage?: number,
+    distanceAttackRange?: number
   ) {
     super(scene, x, y, texture, frame);
 
@@ -66,6 +69,7 @@ export abstract class Enemy extends Phaser.Physics.Arcade.Sprite {
     this.speed = speed || 100;
     this.damage = damage || 10;
     this.prefix = prefix;
+    this.distanceAttackRange = distanceAttackRange || 0;
 
     this.setDepth(10);
 
@@ -175,6 +179,149 @@ export abstract class Enemy extends Phaser.Physics.Arcade.Sprite {
         this.setVelocity(0);
       }
     });
+  }
+
+  /**
+   * Checks if the enemy can hit the player with a distance attack.
+   * This means there are no obstacles between the enemy and the player,
+   * and the player is within the enemy's distance attack range.
+   * @returns boolean indicating if the enemy can hit the player
+   */
+  public canHitPlayerWithDistanceAttack(): boolean {
+    // If enemy doesn't have distance attack capability, return false
+    if (this.distanceAttackRange <= 0) {
+      return false;
+    }
+
+    // Find the player
+    const player = this.scene.children
+      .getChildren()
+      .find((child) => child instanceof Player);
+
+    if (!player || !player.active) {
+      return false;
+    }
+
+    // Calculate distance to player
+    const dx = player.x - this.x;
+    const dy = player.y - this.y;
+    const distance = Math.sqrt(dx * dx + dy * dy);
+
+    // Check if player is within range
+    if (distance > this.distanceAttackRange) {
+      return false;
+    }
+
+    // Check if there's a clear line of sight to the player
+    return this.hasLineOfSightToPlayer(player);
+  }
+
+  /**
+   * Checks if there's a clear line of sight between the enemy and the player.
+   * @param player The player to check line of sight to
+   * @returns boolean indicating if there's a clear line of sight
+   */
+  private hasLineOfSightToPlayer(player: Player): boolean {
+    // Convert positions to map coordinates
+    const enemyMapPos = this.mapGenerator.pixelToMap(this.x, this.y);
+    const playerMapPos = this.mapGenerator.pixelToMap(player.x, player.y);
+
+    // Use Bresenham's line algorithm to check for obstacles
+    const line = this.getLinePoints(
+      enemyMapPos.x,
+      enemyMapPos.y,
+      playerMapPos.x,
+      playerMapPos.y
+    );
+
+    // Check each point on the line for obstacles
+    const map = this.mapGenerator.getMap();
+    for (const point of line) {
+      // Skip the starting and ending points
+      if (
+        (point.x === enemyMapPos.x && point.y === enemyMapPos.y) ||
+        (point.x === playerMapPos.x && point.y === playerMapPos.y)
+      ) {
+        continue;
+      }
+
+      // Check if the point is out of bounds
+      if (
+        point.x < 0 ||
+        point.x >= map[0].length ||
+        point.y < 0 ||
+        point.y >= map.length
+      ) {
+        return false;
+      }
+
+      // Check if there's an obstacle at this point
+      const tileType = map[point.y][point.x];
+      if (tileType > TileType.FLOOR_ALT_5) {
+        // If it's not a floor tile, it's an obstacle
+        return false;
+      }
+    }
+
+    // If we reach here, there's a clear line of sight
+    return true;
+  }
+
+  /**
+   * Implementation of Bresenham's line algorithm to get all points on a line
+   * @param x0 Starting x coordinate
+   * @param y0 Starting y coordinate
+   * @param x1 Ending x coordinate
+   * @param y1 Ending y coordinate
+   * @returns Array of points on the line
+   */
+  private getLinePoints(
+    x0: number,
+    y0: number,
+    x1: number,
+    y1: number
+  ): Array<{ x: number; y: number }> {
+    const points: Array<{ x: number; y: number }> = [];
+
+    const dx = Math.abs(x1 - x0);
+    const dy = Math.abs(y1 - y0);
+    const sx = x0 < x1 ? 1 : -1;
+    const sy = y0 < y1 ? 1 : -1;
+    let err = dx - dy;
+
+    while (true) {
+      points.push({ x: x0, y: y0 });
+
+      if (x0 === x1 && y0 === y1) break;
+
+      const e2 = 2 * err;
+      if (e2 > -dy) {
+        err -= dy;
+        x0 += sx;
+      }
+      if (e2 < dx) {
+        err += dx;
+        y0 += sy;
+      }
+    }
+
+    return points;
+  }
+
+  public getDistanceAttackRange(): number {
+    return this.distanceAttackRange;
+  }
+
+  public setDistanceAttackRange(range: number): void {
+    this.distanceAttackRange = range;
+  }
+
+  public setDistanceAttackCooldown(cooldown: boolean): void {
+    this.distanceAttackCooldown = cooldown;
+  }
+
+  public getDistanceAttackCooldown(): boolean {
+    return this.distanceAttackCooldown;
   }
 
   public takeDamage(amount: number, status: Status | null = null): void {

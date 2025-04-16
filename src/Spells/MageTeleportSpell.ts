@@ -59,7 +59,7 @@ export class MageTeleportSpell extends Phaser.GameObjects.Sprite {
     // Check for boundary collisions
     const noWallCollisions = !boundaries.getChildren().some((wall: any) => {
       return Phaser.Geom.Rectangle.Overlaps(
-        new Phaser.Geom.Rectangle(targetX - 8, targetY - 12, 16, 24),
+        new Phaser.Geom.Rectangle(targetX, targetY, 16, 24),
         new Phaser.Geom.Rectangle(
           wall.x - tileSize / 2,
           wall.y - tileSize / 2,
