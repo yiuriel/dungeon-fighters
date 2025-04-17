@@ -83,7 +83,13 @@ export class Scepter extends Item {
   }
 
   private updatePowerUpBar(progress: number): void {
-    if (!this.powerUpBar) return;
+    if (
+      !this.powerUpBar ||
+      !this.scene ||
+      !this.scene.cameras.main ||
+      !this.active
+    )
+      return;
 
     const width = 200;
     const height = 15;

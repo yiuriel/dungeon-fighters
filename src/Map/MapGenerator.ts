@@ -38,6 +38,7 @@ export class MapGenerator {
   private tileSize: number;
   public boundaries!: Phaser.Physics.Arcade.StaticGroup;
   private map: number[][];
+  private itemLocations: number[][] = [];
 
   constructor(scene: Phaser.Scene, tileSize: number = 48) {
     this.scene = scene;
@@ -46,6 +47,9 @@ export class MapGenerator {
     this.mapHeight = Math.floor((WINDOW_HEIGHT * 1.25) / tileSize);
 
     this.map = Array(this.mapHeight);
+    this.itemLocations = Array(this.mapHeight)
+      .fill(0)
+      .map(() => Array(this.mapWidth).fill(0));
   }
 
   public preload() {
@@ -327,7 +331,11 @@ export class MapGenerator {
       mapY = Phaser.Math.Between(2, this.mapHeight - 3);
 
       // Check if this position is not in a room (not a ROOM_TILE_ID)
-      if (this.map[mapY] && this.map[mapY][mapX] < TileType.ROOM_TOP_LEFT) {
+      if (
+        this.map[mapY] &&
+        this.map[mapY][mapX] < TileType.ROOM_TOP_LEFT &&
+        !this.itemLocations[mapY][mapX]
+      ) {
         isValidPosition = true;
       }
     }
@@ -341,6 +349,8 @@ export class MapGenerator {
     // Convert map coordinates to pixel coordinates (center of the tile)
     const pixelX = mapX * this.tileSize + this.tileSize / 2;
     const pixelY = mapY * this.tileSize + this.tileSize / 2;
+
+    this.itemLocations[mapY][mapX] = 1;
 
     return { x: pixelX, y: pixelY };
   }

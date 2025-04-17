@@ -7,7 +7,7 @@ import { FireMage } from "../Players/FireMage";
 export class HealthManaPotion extends Item {
   private healAmount: number;
   private manaAmount: number;
-  private readonly baseHealAmount: number = 2;
+  private readonly baseHealAmount: number = 5;
   private readonly baseManaAmount: number = 5;
 
   constructor(scene: Phaser.Scene, x: number, y: number) {

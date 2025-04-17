@@ -32,6 +32,9 @@ export class ManaPotion extends Item {
   }
 
   public canUse(player: Player): boolean {
-    return player instanceof Mage || player instanceof FireMage;
+    return (
+      (player instanceof Mage || player instanceof FireMage) &&
+      player.getMana() < player.getMaxMana()
+    );
   }
 }

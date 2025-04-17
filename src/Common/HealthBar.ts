@@ -30,6 +30,7 @@ export class HealthBar {
     this.y = parentSprite.y + offset;
 
     this.bar = scene.add.graphics();
+    this.bar.setDepth(this.parentSprite.depth + 1);
     this.draw();
   }
 

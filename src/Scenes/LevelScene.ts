@@ -116,22 +116,38 @@ export default class LevelScene extends Phaser.Scene {
     this.manaPotions = this.physics.add.group();
     this.healthManaPotions = this.physics.add.group();
 
-    // Add 2-3 potions randomly in the map
-    const potionCount = Phaser.Math.Between(1, 2);
+    // Scale potion counts with level (min 1, max 6)
+    const baseCount = 2;
+    const maxCount = 8;
+    const levelFactor = Math.min(1, this.currentLevel / 10); // Scales up to level 10
+
+    // Add health potions randomly in the map
+    const potionCount = Math.min(
+      maxCount,
+      baseCount + Math.floor(levelFactor * 5)
+    );
     for (let i = 0; i < potionCount; i++) {
       const potionPos = this.mapGenerator.getRandomNonRoomPosition();
       const potion = new HealthPotion(this, potionPos.x, potionPos.y);
       this.healthPotions.add(potion);
     }
 
-    const manaPotionCount = Phaser.Math.Between(1, 2);
+    // Add mana potions randomly in the map
+    const manaPotionCount = Math.min(
+      maxCount,
+      baseCount + Math.floor(levelFactor * 5)
+    );
     for (let i = 0; i < manaPotionCount; i++) {
       const potionPos = this.mapGenerator.getRandomNonRoomPosition();
       const potion = new ManaPotion(this, potionPos.x, potionPos.y);
       this.manaPotions.add(potion);
     }
 
-    const healthManaPotionCount = Phaser.Math.Between(1, 2);
+    // Add health-mana potions randomly in the map
+    const healthManaPotionCount = Math.min(
+      maxCount,
+      baseCount + Math.floor(levelFactor * 3)
+    );
     for (let i = 0; i < healthManaPotionCount; i++) {
       const potionPos = this.mapGenerator.getRandomNonRoomPosition();
       const potion = new HealthManaPotion(this, potionPos.x, potionPos.y);
@@ -141,8 +157,8 @@ export default class LevelScene extends Phaser.Scene {
     // Create scepters group
     this.scepters = this.physics.add.group();
 
-    // Add 1-2 scepters randomly in the map
-    const scepterCount = Phaser.Math.Between(1, 2);
+    // Add scepters randomly in the map (scales with level)
+    const scepterCount = Math.min(3, baseCount + Math.floor(levelFactor * 2));
     for (let i = 0; i < scepterCount; i++) {
       const scepterPos = this.mapGenerator.getRandomNonRoomPosition();
       const scepter = new Scepter(this, scepterPos.x, scepterPos.y);

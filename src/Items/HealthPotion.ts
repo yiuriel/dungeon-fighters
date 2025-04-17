@@ -4,7 +4,7 @@ import { Player } from "../Players/Player";
 
 export class HealthPotion extends Item {
   private healAmount: number;
-  private readonly baseHealAmount: number = 3;
+  private readonly baseHealAmount: number = 5;
 
   constructor(scene: Phaser.Scene, x: number, y: number) {
     // Randomly select a potion frame between 4-7
