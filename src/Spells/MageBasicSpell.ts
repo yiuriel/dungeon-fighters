@@ -78,7 +78,7 @@ export class MageBasicSpell extends Phaser.Physics.Arcade.Sprite {
   }
 
   getDamage(): number {
-    return this.damage;
+    return this.damage * this.caster?.getDamageMultiplier();
   }
 
   getStartAnimationKey(): string {

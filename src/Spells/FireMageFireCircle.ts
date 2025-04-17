@@ -50,7 +50,7 @@ export class FireMageFireCircle extends Phaser.Physics.Arcade.Sprite {
   }
 
   getDamage(): number {
-    return this.damage;
+    return this.damage * this.fireOwner?.getDamageMultiplier();
   }
 
   private createAnimations(): void {

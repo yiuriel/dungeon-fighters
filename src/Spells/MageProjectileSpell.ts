@@ -161,7 +161,7 @@ export class MageProjectileSpell extends Phaser.Physics.Arcade.Sprite {
   }
 
   public getDamage(): number {
-    return this.damage;
+    return this.damage * this.caster?.getDamageMultiplier();
   }
 
   public getStartAnimationKey(): string {

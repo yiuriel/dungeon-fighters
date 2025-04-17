@@ -16,6 +16,7 @@ import { HealthPotion } from "../Items/HealthPotion";
 import { ManaPotion } from "../Items/ManaPotion";
 import { Item } from "../Items/Item";
 import { HealthManaPotion } from "../Items/HealthManaPotion";
+import { Scepter } from "../Items/Scepter";
 
 export default class LevelScene extends Phaser.Scene {
   private players!: Phaser.Physics.Arcade.Group;
@@ -25,6 +26,7 @@ export default class LevelScene extends Phaser.Scene {
   private healthPotions!: Phaser.Physics.Arcade.Group;
   private manaPotions!: Phaser.Physics.Arcade.Group;
   private healthManaPotions!: Phaser.Physics.Arcade.Group;
+  private scepters!: Phaser.Physics.Arcade.Group;
   private mapGenerator: MapGenerator;
   private player!: Player;
   private currentLevel: number = 1;
@@ -76,6 +78,10 @@ export default class LevelScene extends Phaser.Scene {
 
     if (this.healthManaPotions) {
       this.healthManaPotions.clear(true, true);
+    }
+
+    if (this.scepters) {
+      this.scepters.clear(true, true);
     }
 
     // Create players group
@@ -130,6 +136,17 @@ export default class LevelScene extends Phaser.Scene {
       const potionPos = this.mapGenerator.getRandomNonRoomPosition();
       const potion = new HealthManaPotion(this, potionPos.x, potionPos.y);
       this.healthManaPotions.add(potion);
+    }
+
+    // Create scepters group
+    this.scepters = this.physics.add.group();
+
+    // Add 1-2 scepters randomly in the map
+    const scepterCount = Phaser.Math.Between(1, 2);
+    for (let i = 0; i < scepterCount; i++) {
+      const scepterPos = this.mapGenerator.getRandomNonRoomPosition();
+      const scepter = new Scepter(this, scepterPos.x, scepterPos.y);
+      this.scepters.add(scepter);
     }
 
     // Set up camera to follow the player
@@ -247,6 +264,14 @@ export default class LevelScene extends Phaser.Scene {
       this.healthManaPotions,
       this.players,
       this.handlePotionPickup,
+      undefined,
+      this
+    );
+
+    this.physics.add.overlap(
+      this.scepters,
+      this.players,
+      this.handleScepterPickup,
       undefined,
       this
     );
@@ -381,6 +406,16 @@ export default class LevelScene extends Phaser.Scene {
       potion.canUse(player)
     ) {
       potion.use(player);
+    }
+  }
+
+  private handleScepterPickup(scepter: any, player: any) {
+    if (
+      scepter instanceof Scepter &&
+      player instanceof Player &&
+      scepter.canUse(player)
+    ) {
+      scepter.use(player);
     }
   }
 }

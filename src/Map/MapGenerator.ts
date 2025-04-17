@@ -313,8 +313,8 @@ export class MapGenerator {
   }
 
   public getRandomNonRoomPosition(): { x: number; y: number } {
-    let x: number = 0;
-    let y: number = 0;
+    let mapX: number = 0;
+    let mapY: number = 0;
     let isValidPosition = false;
     let attempts = 0;
     const maxAttempts = 50;
@@ -323,34 +323,26 @@ export class MapGenerator {
       attempts++;
 
       // Get random position within the map bounds (with some padding)
-      x = Phaser.Math.Between(
-        this.tileSize * 2,
-        this.mapWidth * this.tileSize - this.tileSize * 2
-      );
-      y = Phaser.Math.Between(
-        this.tileSize * 2,
-        this.mapHeight * this.tileSize - this.tileSize * 2
-      );
-
-      // Convert to map coordinates
-      const mapPos = this.pixelToMap(x, y);
+      mapX = Phaser.Math.Between(2, this.mapWidth - 3);
+      mapY = Phaser.Math.Between(2, this.mapHeight - 3);
 
       // Check if this position is not in a room (not a ROOM_TILE_ID)
-      if (
-        this.map[mapPos.y] &&
-        this.map[mapPos.y][mapPos.x] < TileType.ROOM_TOP_LEFT
-      ) {
+      if (this.map[mapY] && this.map[mapY][mapX] < TileType.ROOM_TOP_LEFT) {
         isValidPosition = true;
       }
     }
 
     // If we couldn't find a valid position after max attempts, just return a position in the middle
     if (!isValidPosition) {
-      x = (this.mapWidth * this.tileSize) / 2;
-      y = (this.mapHeight * this.tileSize) / 2;
+      mapX = Math.floor(this.mapWidth / 2);
+      mapY = Math.floor(this.mapHeight / 2);
     }
 
-    return { x: Math.round(x), y: Math.round(y) };
+    // Convert map coordinates to pixel coordinates (center of the tile)
+    const pixelX = mapX * this.tileSize + this.tileSize / 2;
+    const pixelY = mapY * this.tileSize + this.tileSize / 2;
+
+    return { x: pixelX, y: pixelY };
   }
 
   private readonly ROOM_TILE_ID = 100;

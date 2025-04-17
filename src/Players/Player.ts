@@ -8,6 +8,7 @@ export abstract class Player extends Phaser.Physics.Arcade.Sprite {
   protected cursors!: Phaser.Types.Input.Keyboard.CursorKeys;
   protected healthBar: HealthBar;
   protected maxHealth: number = 100;
+  protected damageMultiplier: number = 1.0;
 
   protected takingDamageCooldown: boolean = false;
 
@@ -226,6 +227,14 @@ export abstract class Player extends Phaser.Physics.Arcade.Sprite {
       frameRate: 8,
       repeat: -1,
     });
+  }
+
+  public setDamageMultiplier(damageMultiplier: number): void {
+    this.damageMultiplier = damageMultiplier;
+  }
+
+  public getDamageMultiplier(): number {
+    return this.damageMultiplier;
   }
 
   destroy(fromScene?: boolean) {

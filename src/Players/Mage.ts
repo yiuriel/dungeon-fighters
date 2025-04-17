@@ -114,7 +114,7 @@ export class Mage extends Player {
         this.y,
         "spell",
         this,
-        this.castSpellDamage,
+        this.castSpellDamage * this.damageMultiplier,
         this.castSpellLifespan
       );
 
@@ -144,7 +144,7 @@ export class Mage extends Player {
         this.y,
         "spell",
         this,
-        this.projectileSpellDamage,
+        this.projectileSpellDamage * this.damageMultiplier,
         this.projectileSpellLifespan,
         135
       );

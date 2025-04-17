@@ -122,6 +122,7 @@ export class FireMage extends Player {
         this.y,
         this
       );
+      fireCircle.damage = this.fireCircleDamage * this.damageMultiplier;
       this.scene.events.emit("fireCircleCreated", fireCircle);
 
       this.fireCircleCooldown = true;
