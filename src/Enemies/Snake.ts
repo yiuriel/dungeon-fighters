@@ -47,7 +47,9 @@ export default class Snake extends Enemy {
         this.y,
         "snake_venom",
         this,
-        this.getDamage()
+        this.getDamage(),
+        2000,
+        120
       );
 
       this.scene.events.emit("venomSpellFired", venomSpell);

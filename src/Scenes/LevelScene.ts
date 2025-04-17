@@ -12,12 +12,19 @@ import { MageProjectileSpell } from "../Spells/MageProjectileSpell";
 import Octopus from "../Enemies/Octopus";
 import Snake from "../Enemies/Snake";
 import { SnakeVenomProjectile } from "../Spells/SnakeVenomProjectile";
+import { HealthPotion } from "../Items/HealthPotion";
+import { ManaPotion } from "../Items/ManaPotion";
+import { Item } from "../Items/Item";
+import { HealthManaPotion } from "../Items/HealthManaPotion";
 
 export default class LevelScene extends Phaser.Scene {
   private players!: Phaser.Physics.Arcade.Group;
   private enemies!: Phaser.Physics.Arcade.Group;
   private overlapSpells!: Phaser.Physics.Arcade.Group;
   private collideSpells!: Phaser.Physics.Arcade.Group;
+  private healthPotions!: Phaser.Physics.Arcade.Group;
+  private manaPotions!: Phaser.Physics.Arcade.Group;
+  private healthManaPotions!: Phaser.Physics.Arcade.Group;
   private mapGenerator: MapGenerator;
   private player!: Player;
   private currentLevel: number = 1;
@@ -59,6 +66,18 @@ export default class LevelScene extends Phaser.Scene {
       this.collideSpells.clear(true, true);
     }
 
+    if (this.healthPotions) {
+      this.healthPotions.clear(true, true);
+    }
+
+    if (this.manaPotions) {
+      this.manaPotions.clear(true, true);
+    }
+
+    if (this.healthManaPotions) {
+      this.healthManaPotions.clear(true, true);
+    }
+
     // Create players group
     this.players = this.physics.add.group();
 
@@ -85,6 +104,33 @@ export default class LevelScene extends Phaser.Scene {
     // Create spells group
     this.overlapSpells = this.physics.add.group();
     this.collideSpells = this.physics.add.group();
+
+    // Create potions group
+    this.healthPotions = this.physics.add.group();
+    this.manaPotions = this.physics.add.group();
+    this.healthManaPotions = this.physics.add.group();
+
+    // Add 2-3 potions randomly in the map
+    const potionCount = Phaser.Math.Between(1, 2);
+    for (let i = 0; i < potionCount; i++) {
+      const potionPos = this.mapGenerator.getRandomNonRoomPosition();
+      const potion = new HealthPotion(this, potionPos.x, potionPos.y);
+      this.healthPotions.add(potion);
+    }
+
+    const manaPotionCount = Phaser.Math.Between(1, 2);
+    for (let i = 0; i < manaPotionCount; i++) {
+      const potionPos = this.mapGenerator.getRandomNonRoomPosition();
+      const potion = new ManaPotion(this, potionPos.x, potionPos.y);
+      this.manaPotions.add(potion);
+    }
+
+    const healthManaPotionCount = Phaser.Math.Between(1, 2);
+    for (let i = 0; i < healthManaPotionCount; i++) {
+      const potionPos = this.mapGenerator.getRandomNonRoomPosition();
+      const potion = new HealthManaPotion(this, potionPos.x, potionPos.y);
+      this.healthManaPotions.add(potion);
+    }
 
     // Set up camera to follow the player
     this.physics.world.setBounds(
@@ -139,7 +185,10 @@ export default class LevelScene extends Phaser.Scene {
     );
     this.physics.add.collider(
       this.collideSpells,
-      this.mapGenerator.getBoundaries()
+      this.mapGenerator.getBoundaries(),
+      this.handleSpellWallCollision,
+      undefined,
+      this
     );
 
     this.physics.add.collider(
@@ -174,6 +223,30 @@ export default class LevelScene extends Phaser.Scene {
       this.players,
       this.collideSpells,
       this.handleEnemySpellPlayerCollision,
+      undefined,
+      this
+    );
+
+    this.physics.add.overlap(
+      this.healthPotions,
+      this.players,
+      this.handlePotionPickup,
+      undefined,
+      this
+    );
+
+    this.physics.add.overlap(
+      this.manaPotions,
+      this.players,
+      this.handlePotionPickup,
+      undefined,
+      this
+    );
+
+    this.physics.add.overlap(
+      this.healthManaPotions,
+      this.players,
+      this.handlePotionPickup,
       undefined,
       this
     );
@@ -279,15 +352,8 @@ export default class LevelScene extends Phaser.Scene {
       projectileSpell instanceof MageProjectileSpell &&
       enemy instanceof Enemy
     ) {
-      // Only do damage if spell is still in active animation frame
-      if (
-        projectileSpell.anims.currentAnim?.key ===
-          projectileSpell.getStartAnimationKey() ||
-        projectileSpell.anims.currentAnim?.key ===
-          projectileSpell.getIdleAnimationKey()
-      ) {
-        enemy.takeDamage(projectileSpell.getDamage());
-      }
+      enemy.takeDamage(projectileSpell.getDamage());
+      projectileSpell.destroy(true);
     }
   }
 
@@ -301,6 +367,20 @@ export default class LevelScene extends Phaser.Scene {
         player.takeDamage(spell.getDamage());
         spell.destroy(true);
       }
+    }
+  }
+
+  private handleSpellWallCollision(spell: any, _: any) {
+    spell.destroy(true);
+  }
+
+  private handlePotionPickup(potion: any, player: any) {
+    if (
+      potion instanceof Item &&
+      player instanceof Player &&
+      potion.canUse(player)
+    ) {
+      potion.use(player);
     }
   }
 }

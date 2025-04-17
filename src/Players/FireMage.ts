@@ -5,6 +5,7 @@ import { Player } from "./Player";
 
 export class FireMage extends Player {
   private mana: number;
+  private maxMana: number = 100;
 
   // fire mage specifics
   private fireShieldKey: Phaser.Input.Keyboard.Key;
@@ -143,6 +144,10 @@ export class FireMage extends Player {
 
   getMana(): number {
     return this.mana;
+  }
+
+  getMaxMana(): number {
+    return this.maxMana;
   }
 
   getFireShieldCooldown(): boolean {

@@ -36,7 +36,7 @@ export default class AssetPreloadScene extends Phaser.Scene {
       console.log("Loading complete");
     });
 
-    // Load assets
+    // load enemies and players
     this.load.spritesheet("spider", "assets/enemies/spider.png", {
       frameWidth: 32,
       frameHeight: 32,
@@ -57,6 +57,13 @@ export default class AssetPreloadScene extends Phaser.Scene {
       frameHeight: 32,
     });
 
+    this.load.spritesheet("fire_mage", "assets/players/fire_mage.png", {
+      frameWidth: 24,
+      frameHeight: 32,
+    });
+    // load enemies and players finish
+
+    // load spells
     this.load.spritesheet(
       "mage_basic_spell",
       "assets/spells/mage_basic_spell.png",
@@ -83,11 +90,6 @@ export default class AssetPreloadScene extends Phaser.Scene {
         frameHeight: 96,
       }
     );
-
-    this.load.spritesheet("fire_mage", "assets/players/fire_mage.png", {
-      frameWidth: 24,
-      frameHeight: 32,
-    });
 
     this.load.spritesheet(
       "fire_mage_shield",
@@ -120,6 +122,24 @@ export default class AssetPreloadScene extends Phaser.Scene {
       frameWidth: 32,
       frameHeight: 16,
     });
+    // load spells finish
+
+    // load items
+    this.load.spritesheet("potions", "assets/items/potions.png", {
+      frameWidth: 16,
+      frameHeight: 16,
+    });
+
+    this.load.spritesheet("gold", "assets/items/gold.png", {
+      frameWidth: 16,
+      frameHeight: 16,
+    });
+
+    this.load.spritesheet("scepter", "assets/items/scepter.png", {
+      frameWidth: 16,
+      frameHeight: 16,
+    });
+    // load items finish
 
     console.log("Assets loaded");
   }

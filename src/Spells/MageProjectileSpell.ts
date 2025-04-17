@@ -32,7 +32,7 @@ export class MageProjectileSpell extends Phaser.Physics.Arcade.Sprite {
 
     // Set position and velocity based on caster's facing direction
     const facing = caster.getFacing();
-    const offset = 30; // Initial distance from caster
+    const offset = 10; // Initial distance from caster
 
     this.initialFacing = facing;
 
@@ -88,9 +88,11 @@ export class MageProjectileSpell extends Phaser.Physics.Arcade.Sprite {
         ease: "Linear",
       });
 
-      this.play(this.getEndAnimationKey()).once("animationcomplete", () => {
-        this.destroy();
-      });
+      if (this.active) {
+        this.play(this.getEndAnimationKey()).once("animationcomplete", () => {
+          this.destroy();
+        });
+      }
     });
   }
 

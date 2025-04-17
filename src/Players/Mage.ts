@@ -7,6 +7,7 @@ import { MapGenerator } from "../Map/MapGenerator";
 
 export class Mage extends Player {
   private mana: number;
+  private maxMana: number = 100;
 
   // mage specifics
   private castSpellKey: Phaser.Input.Keyboard.Key;
@@ -144,7 +145,8 @@ export class Mage extends Player {
         "spell",
         this,
         this.projectileSpellDamage,
-        this.projectileSpellLifespan
+        this.projectileSpellLifespan,
+        135
       );
 
       // Emit an event when the spell is cast
@@ -225,6 +227,10 @@ export class Mage extends Player {
 
   getMana(): number {
     return this.mana;
+  }
+
+  getMaxMana(): number {
+    return this.maxMana;
   }
 
   getCastSpellDamage(): number {

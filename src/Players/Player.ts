@@ -7,6 +7,7 @@ export abstract class Player extends Phaser.Physics.Arcade.Sprite {
   protected facing: string = "down";
   protected cursors!: Phaser.Types.Input.Keyboard.CursorKeys;
   protected healthBar: HealthBar;
+  protected maxHealth: number = 100;
 
   protected takingDamageCooldown: boolean = false;
 
@@ -33,6 +34,8 @@ export abstract class Player extends Phaser.Physics.Arcade.Sprite {
     if (skipBars) {
       this.healthBar.destroy();
     }
+
+    this.setDepth(10);
 
     if (!scene.input?.keyboard) {
       throw new Error("Input keyboard not found");
@@ -132,6 +135,19 @@ export abstract class Player extends Phaser.Physics.Arcade.Sprite {
 
   getFacing(): string {
     return this.facing;
+  }
+
+  getHealth(): number {
+    return this.health;
+  }
+
+  getMaxHealth(): number {
+    return this.maxHealth;
+  }
+
+  heal(amount: number): void {
+    this.health = Math.min(this.health + amount, this.maxHealth);
+    this.healthBar.setHealth(this.health);
   }
 
   createAnimations(): void {
