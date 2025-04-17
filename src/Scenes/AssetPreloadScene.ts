@@ -36,6 +36,9 @@ export default class AssetPreloadScene extends Phaser.Scene {
       console.log("Loading complete");
     });
 
+    // load game_cover
+    this.load.image("game_cover", "assets/common/game_cover.png");
+
     // load enemies and players
     this.load.spritesheet("spider", "assets/enemies/spider.png", {
       frameWidth: 32,

@@ -10,14 +10,15 @@ export default class StartScreenScene extends Phaser.Scene {
     super("StartScreenScene");
   }
 
-  preload() {
-    // Load any assets needed for the start screen
-  }
-
   create() {
+    // Add background image with preserved aspect ratio
+    this.add
+      .image(WINDOW_CENTER.x, WINDOW_CENTER.y - 100, "game_cover")
+      .setDepth(-2);
+
     // Add title text with retro style
     const title = this.add
-      .text(WINDOW_CENTER.x, 100, "DUNGEON FIGHTERS", {
+      .text(WINDOW_CENTER.x, 100, "FIRST LIGHT", {
         fontFamily: "monospace",
         fontSize: "64px",
         color: "#ff0000",
@@ -112,8 +113,7 @@ export default class StartScreenScene extends Phaser.Scene {
         });
       });
 
-    // Add some retro decoration
-    // Add a full-screen decorative grid background
+    // Add a more transparent overlay grid for decoration
     this.add
       .grid(
         WINDOW_CENTER.x,
@@ -125,7 +125,7 @@ export default class StartScreenScene extends Phaser.Scene {
         0x000000,
         0,
         0xff00ff,
-        0.2
+        0.1
       )
       .setDepth(-1);
   }
