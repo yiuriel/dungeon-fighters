@@ -134,9 +134,11 @@ export class SnakeVenomProjectile extends Phaser.Physics.Arcade.Sprite {
         ease: "Linear",
       });
 
-      this.play(this.getEndAnimationKey()).once("animationcomplete", () => {
-        this.destroy();
-      });
+      if (this.active) {
+        this.play(this.getEndAnimationKey()).once("animationcomplete", () => {
+          this.destroy();
+        });
+      }
     });
   }
 

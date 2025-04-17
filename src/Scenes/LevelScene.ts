@@ -299,6 +299,7 @@ export default class LevelScene extends Phaser.Scene {
         spell.anims.currentAnim?.key === spell.getIdleAnimationKey()
       ) {
         player.takeDamage(spell.getDamage());
+        spell.destroy(true);
       }
     }
   }
