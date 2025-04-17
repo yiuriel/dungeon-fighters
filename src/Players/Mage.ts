@@ -20,15 +20,15 @@ export class Mage extends Player {
   private projectileSpellCooldown: boolean = false;
   private projectileSpellLifespan: number = 750;
   private projectileSpellDamage: number = 30;
-  private projectileSpellManaCost: number = 25;
+  private projectileSpellManaCost: number = 18;
   private projectileSpellLaunchCallback: (spell: MageProjectileSpell) => void =
     () => {};
 
   private teleportSpellKey: Phaser.Input.Keyboard.Key;
   private teleportSpellCooldown: boolean = false;
   private teleportSpellLifespan: number = 2000;
-  private teleportDistance: number = 150;
-  private teleportManaCost: number = 35;
+  private teleportDistance: number = 200;
+  private teleportManaCost: number = 25;
 
   manaRegenTimer: Phaser.Time.TimerEvent;
   manaBar: ManaBar;

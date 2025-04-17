@@ -2,7 +2,7 @@ import Phaser from "phaser";
 import { Mage } from "../Players/Mage";
 import { MapGenerator } from "../Map/MapGenerator";
 
-export class MageTeleportSpell extends Phaser.GameObjects.Sprite {
+export class MageTeleportSpell extends Phaser.Physics.Arcade.Sprite {
   private caster: Mage;
 
   constructor(
@@ -110,6 +110,7 @@ export class MageTeleportSpell extends Phaser.GameObjects.Sprite {
 
     // Set size and depth to appear above other sprites
     this.setScale(0.75);
+    this.setOffset(32, 32);
 
     this.x = x;
     this.y = y;

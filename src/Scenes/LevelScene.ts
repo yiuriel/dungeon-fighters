@@ -47,8 +47,10 @@ export default class LevelScene extends Phaser.Scene {
     this.mapGenerator.resetMap();
 
     // Clear existing content
-    this.children.removeAll();
+    // this.children.removeAll();
     this.physics.world.colliders.destroy();
+
+    this.physics.world.drawDebug = true;
 
     // Create a simple bounded area with walls
     this.mapGenerator.generateMap();

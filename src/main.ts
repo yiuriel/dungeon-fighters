@@ -14,6 +14,9 @@ const config: Phaser.Types.Core.GameConfig = {
     arcade: {
       gravity: { y: 0, x: 0 },
       debug: true,
+      debugShowBody: true,
+      debugShowVelocity: true,
+      debugBodyColor: 0x00ffff, // cyan, por ejemplo
     },
   },
   pixelArt: true,

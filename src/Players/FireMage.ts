@@ -25,7 +25,7 @@ export class FireMage extends Player {
   private fireOrbCooldown: boolean = false;
   private fireOrbLifespan: number = 2000;
   private fireOrbDamage: number = 10;
-  private fireOrbManaCost: number = 50;
+  private fireOrbManaCost: number = 35;
 
   manaRegenTimer: Phaser.Time.TimerEvent;
   manaBar: ManaBar;

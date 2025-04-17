@@ -6,6 +6,9 @@ import { Player } from "../Players/Player";
 import { MapGenerator } from "../Map/MapGenerator";
 
 export default class StartScreenScene extends Phaser.Scene {
+  private selectedCharacter: string | null = null;
+  selectedCharacterButtonText: Phaser.GameObjects.Text | null = null;
+
   constructor() {
     super("StartScreenScene");
   }
@@ -59,10 +62,13 @@ export default class StartScreenScene extends Phaser.Scene {
       "Fire Mage"
     );
 
+    // Add controls UI
+    this.createControlsUI(WINDOW_CENTER.x, 420);
+
     // Add neon glow effect to start button
     const buttonGlow = this.add.rectangle(
       WINDOW_CENTER.x,
-      500,
+      550,
       320,
       100,
       0x8800ff,
@@ -70,16 +76,16 @@ export default class StartScreenScene extends Phaser.Scene {
     );
     const buttonOutline = this.add.rectangle(
       WINDOW_CENTER.x,
-      500,
+      550,
       310,
       90,
       0xaa00ff,
       0.5
     );
-    const button = this.add.rectangle(WINDOW_CENTER.x, 500, 300, 80, 0x6666ff);
+    const button = this.add.rectangle(WINDOW_CENTER.x, 550, 300, 80, 0x6666ff);
 
     const buttonText = this.add
-      .text(WINDOW_CENTER.x, 500, "START GAME", {
+      .text(WINDOW_CENTER.x, 550, "START GAME", {
         fontFamily: "monospace",
         fontSize: "32px",
         color: "#ffffff",
@@ -130,6 +136,76 @@ export default class StartScreenScene extends Phaser.Scene {
         0.1
       )
       .setDepth(-1);
+  }
+
+  createControlsUI(x: number, y: number) {
+    // Create container for controls
+    const controlsPanel = this.add.rectangle(x, y + 30, 500, 80, 0x000000, 0.5);
+    controlsPanel.setStrokeStyle(2, 0xaa00ff, 0.8);
+
+    // Controls title
+    this.add
+      .text(x, y + 10, "CONTROLS", {
+        fontFamily: "monospace",
+        fontSize: "20px",
+        color: "#ffffff",
+        stroke: "#000000",
+        strokeThickness: 2,
+      })
+      .setOrigin(0.5);
+
+    // Arrow keys for movement
+    this.add
+      .text(x - 100, y + 30, "ARROW KEYS", {
+        fontFamily: "monospace",
+        fontSize: "16px",
+        color: "#ffcc00",
+      })
+      .setOrigin(0.5);
+
+    this.add
+      .text(x - 100, y + 50, "Movement", {
+        fontFamily: "monospace",
+        fontSize: "14px",
+        color: "#ffffff",
+      })
+      .setOrigin(0.5);
+
+    // Attack & Defense Keys
+    this.add
+      .text(x + 100, y + 30, "Z, X, C", {
+        fontFamily: "monospace",
+        fontSize: "16px",
+        color: "#ffcc00",
+        stroke: "#000000",
+        strokeThickness: 1,
+      })
+      .setOrigin(0.5);
+
+    this.selectedCharacterButtonText = this.add
+      .text(
+        x + 100,
+        y + 50,
+        localStorage.getItem("selectedCharacter") === "mage"
+          ? "Spell, Projectile, Teleport"
+          : "Shield, Fire Circle, Fire Orb",
+        {
+          fontFamily: "monospace",
+          fontSize: "14px",
+          color: "#ffffff",
+        }
+      )
+      .setOrigin(0.5);
+  }
+
+  changeButtonText() {
+    if (this.selectedCharacterButtonText) {
+      this.selectedCharacterButtonText.setText(
+        this.selectedCharacter === "mage"
+          ? "Spell, Projectile, Teleport"
+          : "Shield, Fire Circle, Fire Orb"
+      );
+    }
   }
 
   createCharacterButton(
@@ -227,6 +303,8 @@ export default class StartScreenScene extends Phaser.Scene {
 
         // Store selected character
         localStorage.setItem("selectedCharacter", spriteKey);
+        this.selectedCharacter = spriteKey;
+        this.changeButtonText();
 
         // Highlight selected button
         button.fillColor = 0x44aaff;
