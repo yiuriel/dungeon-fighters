@@ -116,6 +116,11 @@ export default class AssetPreloadScene extends Phaser.Scene {
       }
     );
 
+    this.load.spritesheet("snake_venom", "assets/spells/snake_venom.png", {
+      frameWidth: 32,
+      frameHeight: 16,
+    });
+
     console.log("Assets loaded");
   }
 

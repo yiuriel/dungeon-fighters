@@ -1,6 +1,7 @@
 import Phaser from "phaser";
 import { Enemy } from "./Enemy";
 import { MapGenerator } from "../Map/MapGenerator";
+import { SnakeVenomProjectile } from "../Spells/SnakeVenomProjectile";
 
 export default class Snake extends Enemy {
   constructor(
@@ -39,7 +40,17 @@ export default class Snake extends Enemy {
       this.canHitPlayerWithDistanceAttack()
     ) {
       this.setDistanceAttackCooldown(true);
-      console.log("Snake can hit player with distance attack");
+
+      const venomSpell = new SnakeVenomProjectile(
+        this.scene,
+        this.x,
+        this.y,
+        "snake_venom",
+        this,
+        this.getDamage()
+      );
+
+      this.scene.events.emit("venomSpellFired", venomSpell);
 
       this.scene.time.delayedCall(5000, () => {
         this.setDistanceAttackCooldown(false);

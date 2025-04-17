@@ -13,6 +13,7 @@ export abstract class Enemy extends Phaser.Physics.Arcade.Sprite {
   protected attackDuration: number = 1000;
   protected distanceAttackRange: number = 0; // Default to 0 (no distance attack)
   protected distanceAttackCooldown: boolean = false;
+  protected facing: string = "down";
 
   protected takingDamage: boolean = false;
   protected takingDamageDuration: number = 1000;
@@ -150,15 +151,19 @@ export abstract class Enemy extends Phaser.Physics.Arcade.Sprite {
       // Moving horizontally
       if (dx > 0) {
         this.anims.play(`${this.prefix}_walk_right`, true);
+        this.facing = "right";
       } else {
         this.anims.play(`${this.prefix}_walk_left`, true);
+        this.facing = "left";
       }
     } else {
       // Moving vertically
       if (dy > 0) {
         this.anims.play(`${this.prefix}_walk_down`, true);
+        this.facing = "down";
       } else {
         this.anims.play(`${this.prefix}_walk_up`, true);
+        this.facing = "up";
       }
     }
   }
@@ -221,91 +226,34 @@ export abstract class Enemy extends Phaser.Physics.Arcade.Sprite {
    * @param player The player to check line of sight to
    * @returns boolean indicating if there's a clear line of sight
    */
-  private hasLineOfSightToPlayer(player: Player): boolean {
-    // Convert positions to map coordinates
-    const enemyMapPos = this.mapGenerator.pixelToMap(this.x, this.y);
-    const playerMapPos = this.mapGenerator.pixelToMap(player.x, player.y);
+  private hasLineOfSightToPlayer(player: any): boolean {
+    // Get the boundaries from the map generator
+    const boundaries = this.mapGenerator.getBoundaries();
 
-    // Use Bresenham's line algorithm to check for obstacles
-    const line = this.getLinePoints(
-      enemyMapPos.x,
-      enemyMapPos.y,
-      playerMapPos.x,
-      playerMapPos.y
-    );
+    // Create a ray from the enemy to the player
+    const ray = new Phaser.Geom.Line(this.x, this.y, player.x, player.y);
 
-    // Check each point on the line for obstacles
-    const map = this.mapGenerator.getMap();
-    for (const point of line) {
-      // Skip the starting and ending points
-      // if (
-      //   (point.x === enemyMapPos.x && point.y === enemyMapPos.y) ||
-      //   (point.x === playerMapPos.x && point.y === playerMapPos.y)
-      // ) {
-      //   continue;
-      // }
+    // Check if the ray intersects with any boundary objects
+    const boundaryObjects = boundaries.getChildren();
+    for (let i = 0; i < boundaryObjects.length; i++) {
+      const boundary = boundaryObjects[i] as Phaser.Physics.Arcade.Sprite;
 
-      // Check if the point is out of bounds
-      if (
-        point.x < 0 ||
-        point.x >= map[0].length ||
-        point.y < 0 ||
-        point.y >= map.length
-      ) {
-        return false;
-      }
+      // Create a rectangle representing the boundary
+      const boundaryRect = new Phaser.Geom.Rectangle(
+        boundary.x - boundary.width / 2,
+        boundary.y - boundary.height / 2,
+        boundary.width,
+        boundary.height
+      );
 
-      // Check if there's an obstacle at this point
-      const tileType = map[point.y][point.x];
-      if (tileType > TileType.FLOOR_ALT_5) {
-        // If it's not a floor tile, it's an obstacle
-        return false;
+      // Check if the ray intersects with this boundary
+      if (Phaser.Geom.Intersects.LineToRectangle(ray, boundaryRect)) {
+        return false; // Line of sight is blocked
       }
     }
 
     // If we reach here, there's a clear line of sight
     return true;
-  }
-
-  /**
-   * Implementation of Bresenham's line algorithm to get all points on a line
-   * @param x0 Starting x coordinate
-   * @param y0 Starting y coordinate
-   * @param x1 Ending x coordinate
-   * @param y1 Ending y coordinate
-   * @returns Array of points on the line
-   */
-  private getLinePoints(
-    x0: number,
-    y0: number,
-    x1: number,
-    y1: number
-  ): Array<{ x: number; y: number }> {
-    const points: Array<{ x: number; y: number }> = [];
-
-    const dx = Math.abs(x1 - x0);
-    const dy = Math.abs(y1 - y0);
-    const sx = x0 < x1 ? 1 : -1;
-    const sy = y0 < y1 ? 1 : -1;
-    let err = dx - dy;
-
-    while (true) {
-      points.push({ x: x0, y: y0 });
-
-      if (x0 === x1 && y0 === y1) break;
-
-      const e2 = 2 * err;
-      if (e2 > -dy) {
-        err -= dy;
-        x0 += sx;
-      }
-      if (e2 < dx) {
-        err += dx;
-        y0 += sy;
-      }
-    }
-
-    return points;
   }
 
   public getDistanceAttackRange(): number {
@@ -322,6 +270,10 @@ export abstract class Enemy extends Phaser.Physics.Arcade.Sprite {
 
   public getDistanceAttackCooldown(): boolean {
     return this.distanceAttackCooldown;
+  }
+
+  public getFacing(): string {
+    return this.facing;
   }
 
   public takeDamage(amount: number, status: Status | null = null): void {

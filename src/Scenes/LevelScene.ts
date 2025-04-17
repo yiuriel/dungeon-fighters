@@ -11,6 +11,7 @@ import { MageBasicSpell } from "../Spells/MageBasicSpell";
 import { MageProjectileSpell } from "../Spells/MageProjectileSpell";
 import Octopus from "../Enemies/Octopus";
 import Snake from "../Enemies/Snake";
+import { SnakeVenomProjectile } from "../Spells/SnakeVenomProjectile";
 
 export default class LevelScene extends Phaser.Scene {
   private players!: Phaser.Physics.Arcade.Group;
@@ -69,6 +70,11 @@ export default class LevelScene extends Phaser.Scene {
       player = new FireMage(this, x, y, "player");
     } else {
       player = new Mage(this, x, y, "player", this.mapGenerator);
+      (player as Mage).attachProjectileSpellCreated(
+        (spell: MageProjectileSpell) => {
+          this.collideSpells.add(spell);
+        }
+      );
     }
     this.players.add(player);
     this.player = player;
@@ -100,8 +106,8 @@ export default class LevelScene extends Phaser.Scene {
       this.overlapSpells.add(spell);
     });
 
-    this.events.on("projectileSpellCast", (spell: any) => {
-      this.collideSpells.add(spell);
+    this.events.on("venomSpellFired", (venomSpell: any) => {
+      this.collideSpells.add(venomSpell);
     });
 
     this.events.on("fireCircleCreated", (fireCircle: any) => {
@@ -161,6 +167,13 @@ export default class LevelScene extends Phaser.Scene {
       this.collideSpells,
       this.enemies,
       this.handleProjectileSpellEnemyCollision,
+      undefined,
+      this
+    );
+    this.physics.add.collider(
+      this.players,
+      this.collideSpells,
+      this.handleEnemySpellPlayerCollision,
       undefined,
       this
     );
@@ -274,6 +287,18 @@ export default class LevelScene extends Phaser.Scene {
           projectileSpell.getIdleAnimationKey()
       ) {
         enemy.takeDamage(projectileSpell.getDamage());
+      }
+    }
+  }
+
+  private handleEnemySpellPlayerCollision(player: any, spell: any) {
+    if (player instanceof Player && spell instanceof SnakeVenomProjectile) {
+      // Only do damage if spell is still in active animation frame
+      if (
+        spell.anims.currentAnim?.key === spell.getStartAnimationKey() ||
+        spell.anims.currentAnim?.key === spell.getIdleAnimationKey()
+      ) {
+        player.takeDamage(spell.getDamage());
       }
     }
   }

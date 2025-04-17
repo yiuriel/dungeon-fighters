@@ -20,6 +20,8 @@ export class Mage extends Player {
   private projectileSpellLifespan: number = 750;
   private projectileSpellDamage: number = 30;
   private projectileSpellManaCost: number = 25;
+  private projectileSpellLaunchCallback: (spell: MageProjectileSpell) => void =
+    () => {};
 
   private teleportSpellKey: Phaser.Input.Keyboard.Key;
   private teleportSpellCooldown: boolean = false;
@@ -146,7 +148,8 @@ export class Mage extends Player {
       );
 
       // Emit an event when the spell is cast
-      this.scene.events.emit("projectileSpellCast", spell);
+      // this.scene.events.emit("projectileSpellCast", spell);
+      this.projectileSpellLaunchCallback?.(spell);
 
       this.scene.time.addEvent({
         delay: this.projectileSpellLifespan + 250,
@@ -238,6 +241,12 @@ export class Mage extends Player {
 
   getProjectileSpellLifespan(): number {
     return this.projectileSpellLifespan;
+  }
+
+  attachProjectileSpellCreated(
+    callback: (spell: MageProjectileSpell) => void
+  ): void {
+    this.projectileSpellLaunchCallback = callback;
   }
 
   destroy(fromScene?: boolean) {

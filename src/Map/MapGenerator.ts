@@ -307,8 +307,8 @@ export class MapGenerator {
 
   public pixelToMap(pixelX: number, pixelY: number): { x: number; y: number } {
     return {
-      x: Math.round(pixelX / this.tileSize),
-      y: Math.round(pixelY / this.tileSize),
+      x: Math.floor(pixelX / this.tileSize),
+      y: Math.floor(pixelY / this.tileSize),
     };
   }
 

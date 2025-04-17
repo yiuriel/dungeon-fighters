@@ -8,6 +8,8 @@ export abstract class Player extends Phaser.Physics.Arcade.Sprite {
   protected cursors!: Phaser.Types.Input.Keyboard.CursorKeys;
   protected healthBar: HealthBar;
 
+  protected takingDamageCooldown: boolean = false;
+
   constructor(
     scene: Phaser.Scene,
     x: number,
@@ -109,6 +111,13 @@ export abstract class Player extends Phaser.Physics.Arcade.Sprite {
   }
 
   takeDamage(amount: number): void {
+    if (this.takingDamageCooldown) {
+      return;
+    }
+    this.takingDamageCooldown = true;
+    this.scene.time.delayedCall(500, () => {
+      this.takingDamageCooldown = false;
+    });
     this.health -= amount;
     this.healthBar.setHealth(this.health);
     if (this.health <= 0) {
