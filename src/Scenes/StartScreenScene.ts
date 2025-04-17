@@ -21,14 +21,16 @@ export default class StartScreenScene extends Phaser.Scene {
       .text(WINDOW_CENTER.x, 100, "FIRST LIGHT", {
         fontFamily: "monospace",
         fontSize: "64px",
-        color: "#ff0000",
-        stroke: "#000000",
+        color: "#ffffa0",
+        letterSpacing: 5,
+        stroke: "#FFA500",
         strokeThickness: 6,
         shadow: {
-          offsetX: 4,
-          offsetY: 4,
-          color: "#000000",
+          offsetX: 0,
+          offsetY: 2,
+          color: "#ffcc00",
           blur: 5,
+
           stroke: true,
         },
       })

@@ -1,4 +1,5 @@
 import { HealthBar } from "../Common/HealthBar";
+import { Status } from "../Common/Status";
 
 export abstract class Player extends Phaser.Physics.Arcade.Sprite {
   protected health: number;
@@ -9,6 +10,7 @@ export abstract class Player extends Phaser.Physics.Arcade.Sprite {
   protected healthBar: HealthBar;
   protected maxHealth: number = 100;
   protected damageMultiplier: number = 1.0;
+  protected status: Status | null = null;
 
   protected takingDamageCooldown: boolean = false;
 
@@ -114,20 +116,36 @@ export abstract class Player extends Phaser.Physics.Arcade.Sprite {
     }
   }
 
-  takeDamage(amount: number): void {
+  takeDamage(amount: number, status: Status | null = null): void {
     if (this.takingDamageCooldown) {
       return;
     }
     this.takingDamageCooldown = true;
-    this.scene.time.delayedCall(500, () => {
-      this.takingDamageCooldown = false;
-    });
     this.health -= amount;
     this.healthBar.setHealth(this.health);
+
+    if (!this.status) {
+      this.status = status;
+      this.status?.apply();
+    }
+
+    const statusType = this.status?.getType();
+    if (statusType === "venom") {
+      this.tint = 0x00ff00; // Green for venom damage
+    } else {
+      this.tint = 0xff0000; // Red for normal damage
+    }
+
     if (this.health <= 0) {
       this.healthBar.destroy();
       this.destroy();
     }
+
+    if (this.health && this.active)
+      this.scene.time.delayedCall(500, () => {
+        this.takingDamageCooldown = false;
+        this.tint = 0xffffff;
+      });
   }
 
   getPrefix(): string {
@@ -235,6 +253,18 @@ export abstract class Player extends Phaser.Physics.Arcade.Sprite {
 
   public getDamageMultiplier(): number {
     return this.damageMultiplier;
+  }
+
+  public getStatus(): Status | null {
+    return this.status;
+  }
+
+  public setStatus(status: Status | null): void {
+    this.status = status;
+  }
+
+  public onStatusFinished(): void {
+    this.status = null;
   }
 
   destroy(fromScene?: boolean) {

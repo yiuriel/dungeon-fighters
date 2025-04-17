@@ -1,5 +1,6 @@
 import { ManaBar } from "../Common/ManaBar";
 import { FireMageFireCircle } from "../Spells/FireMageFireCircle";
+import { FireMageFireOrb } from "../Spells/FireMageFireOrb";
 import { FireMageShield } from "../Spells/FireMageShield";
 import { Player } from "./Player";
 
@@ -23,8 +24,8 @@ export class FireMage extends Player {
   private fireOrbKey: Phaser.Input.Keyboard.Key;
   private fireOrbCooldown: boolean = false;
   private fireOrbLifespan: number = 2000;
-  private fireOrbDistance: number = 150;
-  private fireOrbManaCost: number = 35;
+  private fireOrbDamage: number = 10;
+  private fireOrbManaCost: number = 50;
 
   manaRegenTimer: Phaser.Time.TimerEvent;
   manaBar: ManaBar;
@@ -135,6 +136,23 @@ export class FireMage extends Player {
   castFireOrb(): void {
     if (this.mana >= this.fireOrbManaCost && !this.fireOrbCooldown) {
       this.mana -= this.fireOrbManaCost;
+      this.manaBar.setMana(this.mana);
+      const fireOrb = new FireMageFireOrb(
+        this.scene,
+        this.x,
+        this.y,
+        "fire_mage_orb",
+        this,
+        this.fireOrbDamage * this.damageMultiplier,
+        this.fireOrbLifespan
+      );
+
+      this.scene.events.emit("fireOrbCreated", fireOrb);
+
+      this.fireOrbCooldown = true;
+      this.scene.time.delayedCall(this.fireOrbLifespan, () => {
+        this.fireOrbCooldown = false;
+      });
     }
   }
 

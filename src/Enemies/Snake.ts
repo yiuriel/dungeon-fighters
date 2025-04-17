@@ -20,7 +20,7 @@ export default class Snake extends Enemy {
       "snake",
       frame,
       100,
-      Phaser.Math.Between(10, 25),
+      Phaser.Math.Between(20, 30),
       Phaser.Math.Between(20, 40),
       150
     );

@@ -19,7 +19,7 @@ export default class Spider extends Enemy {
       "spider",
       frame,
       50,
-      Phaser.Math.Between(30, 45),
+      Phaser.Math.Between(40, 50),
       Phaser.Math.Between(5, 15)
     );
 

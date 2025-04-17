@@ -19,7 +19,7 @@ export default class Octopus extends Enemy {
       "octopus",
       frame,
       75,
-      Phaser.Math.Between(20, 35),
+      Phaser.Math.Between(25, 40),
       Phaser.Math.Between(10, 20),
       100
     );

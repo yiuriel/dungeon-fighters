@@ -17,6 +17,7 @@ import { ManaPotion } from "../Items/ManaPotion";
 import { Item } from "../Items/Item";
 import { HealthManaPotion } from "../Items/HealthManaPotion";
 import { Scepter } from "../Items/Scepter";
+import { FireMageFireOrb } from "../Spells/FireMageFireOrb";
 
 export default class LevelScene extends Phaser.Scene {
   private players!: Phaser.Physics.Arcade.Group;
@@ -191,6 +192,10 @@ export default class LevelScene extends Phaser.Scene {
 
     this.events.on("fireCircleCreated", (fireCircle: any) => {
       this.overlapSpells.add(fireCircle);
+    });
+
+    this.events.on("fireOrbCreated", (fireOrb: any) => {
+      this.overlapSpells.add(fireOrb);
     });
 
     // Create some enemies
@@ -383,6 +388,29 @@ export default class LevelScene extends Phaser.Scene {
         );
       }
     }
+
+    if (spell instanceof FireMageFireOrb && enemy instanceof Enemy) {
+      // Only do damage if spell is still in active animation frame
+      if (
+        spell.anims.currentAnim?.key === spell.getIdleAnimationKey() ||
+        spell.anims.currentAnim?.key === spell.getStartAnimationKey()
+      ) {
+        enemy.takeDamage(
+          spell.getDamage(),
+          new Status(
+            this,
+            enemy,
+            "fire",
+            5,
+            8000,
+            enemy.getTakingDamageDuration(),
+            () => {
+              enemy.onStatusFinished();
+            }
+          )
+        );
+      }
+    }
   }
 
   private handleProjectileSpellEnemyCollision(
@@ -405,7 +433,12 @@ export default class LevelScene extends Phaser.Scene {
         spell.anims.currentAnim?.key === spell.getStartAnimationKey() ||
         spell.anims.currentAnim?.key === spell.getIdleAnimationKey()
       ) {
-        player.takeDamage(spell.getDamage());
+        player.takeDamage(
+          spell.getDamage(),
+          new Status(this, player, "venom", 5, 2000, 1000, () => {
+            player.onStatusFinished();
+          })
+        );
         spell.destroy(true);
       }
     }
