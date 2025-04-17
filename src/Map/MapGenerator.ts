@@ -42,8 +42,8 @@ export class MapGenerator {
   constructor(scene: Phaser.Scene, tileSize: number = 48) {
     this.scene = scene;
     this.tileSize = tileSize;
-    this.mapWidth = Math.floor((WINDOW_WIDTH * 1) / tileSize);
-    this.mapHeight = Math.floor((WINDOW_HEIGHT * 1) / tileSize);
+    this.mapWidth = Math.floor((WINDOW_WIDTH * 1.25) / tileSize);
+    this.mapHeight = Math.floor((WINDOW_HEIGHT * 1.25) / tileSize);
 
     this.map = Array(this.mapHeight);
   }

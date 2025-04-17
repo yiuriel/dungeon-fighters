@@ -7,7 +7,8 @@ export class SnakeVenomProjectile extends Phaser.Physics.Arcade.Sprite {
   private damage: number = 10;
   private speed: number = 150;
   private caster: Snake;
-  private initialFacing: string;
+  private directionX: number = 0;
+  private directionY: number = 0;
 
   constructor(
     scene: Phaser.Scene,
@@ -45,8 +46,8 @@ export class SnakeVenomProjectile extends Phaser.Physics.Arcade.Sprite {
       const dy = player.y - this.caster.y;
       const angle = Math.atan2(dy, dx);
 
-      directionX = Math.cos(angle);
-      directionY = Math.sin(angle);
+      this.directionX = Math.cos(angle);
+      this.directionY = Math.sin(angle);
 
       // Set position offset from caster
       this.x = this.caster.x + offset * directionX;
@@ -67,19 +68,13 @@ export class SnakeVenomProjectile extends Phaser.Physics.Arcade.Sprite {
           this.body.setOffset(4, 3);
         }
       }
-
-      // Store initial direction for velocity
-      if (Math.abs(directionX) > Math.abs(directionY)) {
-        this.initialFacing = directionX > 0 ? "right" : "left";
-      } else {
-        this.initialFacing = directionY > 0 ? "down" : "up";
-      }
     } else {
       // Fallback to caster's facing if player not found
       const facing = this.caster.getFacing();
-      this.initialFacing = facing;
 
       if (facing === "up") {
+        this.directionX = 0;
+        this.directionY = -1;
         this.y = this.caster.y - offset;
         this.x = this.caster.x;
         this.setRotation(-Math.PI / 2);
@@ -88,6 +83,8 @@ export class SnakeVenomProjectile extends Phaser.Physics.Arcade.Sprite {
           this.body.setOffset(11, 4);
         }
       } else if (facing === "down") {
+        this.directionX = 0;
+        this.directionY = 1;
         this.y = this.caster.y + offset;
         this.x = this.caster.x;
         this.setRotation(Math.PI / 2);
@@ -96,6 +93,8 @@ export class SnakeVenomProjectile extends Phaser.Physics.Arcade.Sprite {
           this.body.setOffset(11, 4);
         }
       } else if (facing === "left") {
+        this.directionX = -1;
+        this.directionY = 0;
         this.x = this.caster.x - offset;
         this.y = this.caster.y;
         this.setRotation(Math.PI);
@@ -104,6 +103,8 @@ export class SnakeVenomProjectile extends Phaser.Physics.Arcade.Sprite {
           this.body.setOffset(4, 3);
         }
       } else if (facing === "right") {
+        this.directionX = 1;
+        this.directionY = 0;
         this.x = this.caster.x + offset;
         this.y = this.caster.y;
         if (this.body) {
@@ -180,20 +181,8 @@ export class SnakeVenomProjectile extends Phaser.Physics.Arcade.Sprite {
     // Ensure velocity is maintained (in case it's reset elsewhere)
     if (this.active && this.body) {
       const speed = this.speed;
-      switch (this.initialFacing) {
-        case "left":
-          this.body.velocity.x = -speed;
-          break;
-        case "right":
-          this.body.velocity.x = speed;
-          break;
-        case "up":
-          this.body.velocity.y = -speed;
-          break;
-        case "down":
-          this.body.velocity.y = speed;
-          break;
-      }
+      this.body.velocity.x = this.directionX * speed;
+      this.body.velocity.y = this.directionY * speed;
     }
   }
 
