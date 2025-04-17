@@ -63,10 +63,10 @@ export class FireMageFireOrb extends Phaser.Physics.Arcade.Sprite {
 
     // Add fire particles
     const particles = scene.add.particles(0, 0, texture, {
-      alpha: { start: 0.7, end: 0 },
-      scale: { start: 0.2, end: 0.1 },
-      speed: 20,
-      lifespan: 300,
+      alpha: { start: 1, end: 0 },
+      scale: { start: 0.7, end: 0.5 },
+      speed: 50,
+      lifespan: 1000,
       blendMode: "ADD",
       frequency: 50,
       x: this.x,
@@ -85,9 +85,11 @@ export class FireMageFireOrb extends Phaser.Physics.Arcade.Sprite {
     // Play end animation then destroy after lifespan
     scene.time.delayedCall(this.lifespan, () => {
       particles.destroy();
-      this.play(this.getEndAnimationKey()).once("animationcomplete", () => {
-        this.destroy();
-      });
+      if (this.active) {
+        this.play(this.getEndAnimationKey()).once("animationcomplete", () => {
+          this.destroy();
+        });
+      }
     });
   }
 

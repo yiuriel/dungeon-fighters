@@ -8,6 +8,7 @@ export class Scepter extends Item {
   private static readonly MAX_DAMAGE_MULTIPLIER = 1.5;
   private buffTimer: Phaser.Time.TimerEvent | null = null;
   private powerUpBar: Phaser.GameObjects.Graphics | null = null;
+  private multiplierText: Phaser.GameObjects.Text | null = null;
   private damageMultiplier: number;
 
   constructor(scene: Phaser.Scene, x: number, y: number) {
@@ -32,6 +33,18 @@ export class Scepter extends Item {
       this.powerUpBar = this.scene.add.graphics();
     }
 
+    // Create or update multiplier text
+    if (!this.multiplierText) {
+      this.multiplierText = this.scene.add.text(0, 0, "", {
+        fontSize: "12px",
+        fontFamily: "Arial",
+        color: "#ffffff",
+        align: "center",
+      });
+      this.multiplierText.setScrollFactor(0);
+      this.multiplierText.setDepth(100);
+    }
+
     // Clear any existing timer
     if (this.buffTimer) {
       this.buffTimer.remove();
@@ -54,6 +67,12 @@ export class Scepter extends Item {
         if (this.powerUpBar) {
           this.powerUpBar.clear();
           this.powerUpBar = null;
+        }
+
+        // Remove the multiplier text
+        if (this.multiplierText) {
+          this.multiplierText.destroy();
+          this.multiplierText = null;
         }
 
         // Destroy the item after the power-up finishes
@@ -110,5 +129,14 @@ export class Scepter extends Item {
     // Draw border
     this.powerUpBar.lineStyle(2, 0xffffff, 1);
     this.powerUpBar.strokeRect(x, y, width, height);
+
+    // Update multiplier text
+    if (this.multiplierText) {
+      this.multiplierText.setText(`×${this.damageMultiplier.toFixed(1)}`);
+      this.multiplierText.setPosition(
+        x + width / 2 - this.multiplierText.width / 2,
+        y + height / 2 - this.multiplierText.height / 2
+      );
+    }
   }
 }
