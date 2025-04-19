@@ -28,6 +28,10 @@ const config: Phaser.Types.Core.GameConfig = {
     width: WINDOW_WIDTH,
     height: WINDOW_HEIGHT,
   },
+  render: {
+    pixelArt: true,
+    roundPixels: true,
+  },
 };
 
 new Phaser.Game(config);

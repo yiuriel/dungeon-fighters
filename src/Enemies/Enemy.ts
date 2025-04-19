@@ -101,11 +101,15 @@ export abstract class Enemy extends Phaser.Physics.Arcade.Sprite {
       .find((child) => child instanceof Player);
 
     if (!this.pathCooldownRecalc && player && player.active) {
+      // Determine target position based on player's facing direction
+      let targetX = Math.floor(player!.x / this.mapGenerator.getTileSize());
+      let targetY = Math.floor(player!.y / this.mapGenerator.getTileSize());
+
       this.path = this.pathfinder.findPath(
         Math.floor(this.x / this.mapGenerator.getTileSize()),
         Math.floor(this.y / this.mapGenerator.getTileSize()),
-        Math.floor(player!.x / this.mapGenerator.getTileSize()),
-        Math.floor(player!.y / this.mapGenerator.getTileSize()),
+        targetX,
+        targetY,
         this.grid.clone()
       );
 
@@ -123,12 +127,13 @@ export abstract class Enemy extends Phaser.Physics.Arcade.Sprite {
     if (player && this.path && this.path.length > 1) {
       // Get the next point in the path (index 1 since 0 is the current position)
       const nextPoint = this.path[1];
-      const nextX =
-        nextPoint[0] * this.mapGenerator.getTileSize() +
-        this.mapGenerator.getTileSize() / 2;
-      const nextY =
-        nextPoint[1] * this.mapGenerator.getTileSize() +
-        this.mapGenerator.getTileSize() / 2;
+      // Use mapToPixel to convert map coordinates to pixel coordinates for more accuracy
+      const pixelCoords = this.mapGenerator.mapToPixel(
+        nextPoint[0],
+        nextPoint[1]
+      );
+      const nextX = pixelCoords.x;
+      const nextY = pixelCoords.y;
 
       // Calculate direction to the next point in the path
       const dx = nextX - this.x;

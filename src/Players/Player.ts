@@ -137,6 +137,9 @@ export abstract class Player extends Phaser.Physics.Arcade.Sprite {
     }
 
     if (this.health <= 0) {
+      if (this.scene.events) {
+        this.scene.events.emit("playerDied");
+      }
       this.healthBar.destroy();
       this.destroy();
     }

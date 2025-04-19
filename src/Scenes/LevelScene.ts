@@ -18,6 +18,7 @@ import { Item } from "../Items/Item";
 import { HealthManaPotion } from "../Items/HealthManaPotion";
 import { Scepter } from "../Items/Scepter";
 import { FireMageFireOrb } from "../Spells/FireMageFireOrb";
+import { ReadNote } from "../Graphics/ReadNote";
 
 export default class LevelScene extends Phaser.Scene {
   private players!: Phaser.Physics.Arcade.Group;
@@ -32,6 +33,7 @@ export default class LevelScene extends Phaser.Scene {
   private player!: Player;
   private currentLevel: number = 1;
   private levelTransitionCooldown: boolean = false;
+  private readNote: boolean = false;
 
   constructor() {
     super("LevelScene");
@@ -44,48 +46,18 @@ export default class LevelScene extends Phaser.Scene {
   }
 
   prepareLevel() {
-    this.mapGenerator.resetMap();
-
     // Clear existing content
-    // this.children.removeAll();
+    this.children.each((child) => {
+      if (child instanceof Phaser.GameObjects.Sprite) {
+        child.destroy();
+      }
+    });
     this.physics.world.colliders.destroy();
 
     this.physics.world.drawDebug = true;
 
     // Create a simple bounded area with walls
     this.mapGenerator.generateMap();
-
-    if (this.players) {
-      this.players.clear(true, true);
-    }
-
-    if (this.enemies) {
-      this.enemies.clear(true, true);
-    }
-
-    if (this.overlapSpells) {
-      this.overlapSpells.clear(true, true);
-    }
-
-    if (this.collideSpells) {
-      this.collideSpells.clear(true, true);
-    }
-
-    if (this.healthPotions) {
-      this.healthPotions.clear(true, true);
-    }
-
-    if (this.manaPotions) {
-      this.manaPotions.clear(true, true);
-    }
-
-    if (this.healthManaPotions) {
-      this.healthManaPotions.clear(true, true);
-    }
-
-    if (this.scepters) {
-      this.scepters.clear(true, true);
-    }
 
     // Create players group
     this.players = this.physics.add.group();
@@ -200,6 +172,13 @@ export default class LevelScene extends Phaser.Scene {
       this.overlapSpells.add(fireOrb);
     });
 
+    this.events.on("playerDied", () => {
+      this.time.delayedCall(1000, () => {
+        this.scene.stop();
+        this.scene.start("StartScreenScene");
+      });
+    });
+
     // Create some enemies
     for (let i = 0; i < this.currentLevel * 2; i++) {
       const { x, y } = this.mapGenerator.getRandomNonRoomPosition();
@@ -312,10 +291,33 @@ export default class LevelScene extends Phaser.Scene {
   }
 
   create() {
-    this.prepareLevel();
+    if (this.currentLevel === 1) {
+      new ReadNote(
+        this,
+        `Uri,
+
+Llegó el momento. Lo encontramos. El acceso al dungeon del que tantos hablaban... está abierto. No sé por cuánto tiempo.
+
+Desde fuera ya se siente algo distinto, como si el lugar respirara. Cada vez que entro, el camino cambia. Nada se mantiene igual. Es como si no quisiera ser comprendido.
+
+No te voy a mentir, no es un lugar seguro. Pero también hay cosas ahí abajo que no vas a encontrar en ningún otro lado. He visto puertas que no deberían existir, cofres con símbolos que no reconozco. Hay algo grande esperándonos.
+
+Te espero adentro. No tardes.
+— A`
+      )
+        .show()
+        .then(() => {
+          this.readNote = true;
+          this.prepareLevel();
+        });
+    }
   }
 
   update() {
+    if (!this.readNote) {
+      return;
+    }
+
     // Check if all enemies are defeated
     if (
       this.enemies &&
