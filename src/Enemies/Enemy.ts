@@ -73,6 +73,7 @@ export abstract class Enemy extends Phaser.Physics.Arcade.Sprite {
     this.distanceAttackRange = distanceAttackRange || 0;
 
     this.setDepth(10);
+    this.setScale(1.5);
 
     this.createAnimations();
 

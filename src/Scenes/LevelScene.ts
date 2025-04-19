@@ -47,12 +47,7 @@ export default class LevelScene extends Phaser.Scene {
 
   prepareLevel() {
     // Clear existing content
-    this.children.each((child) => {
-      if (child instanceof Phaser.GameObjects.Sprite) {
-        child.destroy();
-      }
-    });
-    this.physics.world.colliders.destroy();
+    this.children.removeAll();
 
     this.physics.world.drawDebug = true;
 
@@ -90,6 +85,7 @@ export default class LevelScene extends Phaser.Scene {
     this.healthPotions = this.physics.add.group();
     this.manaPotions = this.physics.add.group();
     this.healthManaPotions = this.physics.add.group();
+    this.scepters = this.physics.add.group();
 
     // Scale potion counts with level (min 1, max 6)
     const baseCount = 2;
@@ -128,9 +124,6 @@ export default class LevelScene extends Phaser.Scene {
       const potion = new HealthManaPotion(this, potionPos.x, potionPos.y);
       this.healthManaPotions.add(potion);
     }
-
-    // Create scepters group
-    this.scepters = this.physics.add.group();
 
     // Add scepters randomly in the map (scales with level)
     const scepterCount = Math.min(3, baseCount + Math.floor(levelFactor * 2));

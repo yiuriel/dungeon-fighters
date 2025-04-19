@@ -71,7 +71,7 @@ export class Scepter extends Item {
 
         // Remove the multiplier text
         if (this.multiplierText) {
-          this.multiplierText.destroy();
+          this.multiplierText.destroy(true);
           this.multiplierText = null;
         }
 

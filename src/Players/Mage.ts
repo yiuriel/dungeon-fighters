@@ -189,6 +189,9 @@ export class Mage extends Player {
 
         spell.startTeleport(this.x, this.y);
 
+        // Disable player movement during teleport
+        this.canMove = false;
+
         // Fade out player
         this.scene.tweens.add({
           targets: this,
@@ -207,6 +210,10 @@ export class Mage extends Player {
               targets: this,
               alpha: 1,
               duration: 350,
+              onComplete: () => {
+                // Enable player movement after teleport
+                this.canMove = true;
+              },
             });
           },
         });

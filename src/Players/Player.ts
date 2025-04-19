@@ -13,6 +13,7 @@ export abstract class Player extends Phaser.Physics.Arcade.Sprite {
   protected status: Status | null = null;
 
   protected takingDamageCooldown: boolean = false;
+  protected canMove: boolean = true;
 
   constructor(
     scene: Phaser.Scene,
@@ -39,6 +40,7 @@ export abstract class Player extends Phaser.Physics.Arcade.Sprite {
     }
 
     this.setDepth(10);
+    this.setScale(2);
 
     if (!scene.input?.keyboard) {
       throw new Error("Input keyboard not found");
@@ -49,7 +51,9 @@ export abstract class Player extends Phaser.Physics.Arcade.Sprite {
   }
 
   update(): void {
-    this.handleMovement();
+    if (this.canMove) {
+      this.handleMovement();
+    }
     this.updateSpecific();
   }
 
