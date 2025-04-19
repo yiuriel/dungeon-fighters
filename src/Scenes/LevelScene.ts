@@ -348,6 +348,7 @@ Te espero adentro. No tardes.
         return;
       } else {
         player.takeDamage(enemy.doDamage());
+        player.smallKnockback();
       }
     }
   }

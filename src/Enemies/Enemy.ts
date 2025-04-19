@@ -125,7 +125,7 @@ export abstract class Enemy extends Phaser.Physics.Arcade.Sprite {
 
     this.pathCooldownRecalc = true;
 
-    if (player && this.path && this.path.length > 1) {
+    if (player && this.path && this.path.length > 2) {
       // Get the next point in the path (index 1 since 0 is the current position)
       const nextPoint = this.path[1];
       // Use mapToPixel to convert map coordinates to pixel coordinates for more accuracy
@@ -146,9 +146,11 @@ export abstract class Enemy extends Phaser.Physics.Arcade.Sprite {
 
       // Update animation based on movement direction
       this.updateAnimation(dx, dy);
-    } else {
-      this.setVelocity(0);
-      this.anims.play(`${this.prefix}_idle`, true);
+    } else if (player && player.active) {
+      this.scene.physics.moveTo(this, player.x, player.y, this.speed);
+      const dx = this.body?.velocity?.x || 0;
+      const dy = this.body?.velocity?.y || 0;
+      this.updateAnimation(dx, dy);
     }
   }
 
