@@ -40,7 +40,7 @@ export abstract class Player extends Phaser.Physics.Arcade.Sprite {
     }
 
     this.setDepth(10);
-    this.setScale(2);
+    this.setScale(1.8);
 
     if (!scene.input?.keyboard) {
       throw new Error("Input keyboard not found");

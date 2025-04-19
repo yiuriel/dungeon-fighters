@@ -142,6 +142,11 @@ export default class AssetPreloadScene extends Phaser.Scene {
       frameWidth: 16,
       frameHeight: 16,
     });
+
+    this.load.spritesheet("letter", "assets/items/letter.png", {
+      frameWidth: 16,
+      frameHeight: 16,
+    });
     // load items finish
 
     console.log("Assets loaded");

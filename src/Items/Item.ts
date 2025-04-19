@@ -5,6 +5,7 @@ export enum ItemType {
   GOLD = "gold",
   POTION = "potion",
   SCEPTER = "scepter",
+  LETTER = "letter",
 }
 
 export class Item extends Phaser.Physics.Arcade.Sprite {

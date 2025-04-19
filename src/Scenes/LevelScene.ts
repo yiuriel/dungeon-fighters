@@ -1,23 +1,25 @@
 import Phaser from "phaser";
+import { NotesMap } from "../Common/NoteMap";
 import { Status } from "../Common/Status";
 import { Enemy } from "../Enemies/Enemy";
+import Octopus from "../Enemies/Octopus";
+import Snake from "../Enemies/Snake";
 import Spider from "../Enemies/Spider";
+import { HealthManaPotion } from "../Items/HealthManaPotion";
+import { HealthPotion } from "../Items/HealthPotion";
+import { Item } from "../Items/Item";
+import { ManaPotion } from "../Items/ManaPotion";
+import { Scepter } from "../Items/Scepter";
 import { MapGenerator } from "../Map/MapGenerator";
 import { FireMage } from "../Players/FireMage";
 import { Mage } from "../Players/Mage";
 import { Player } from "../Players/Player";
 import { FireMageFireCircle } from "../Spells/FireMageFireCircle";
+import { FireMageFireOrb } from "../Spells/FireMageFireOrb";
 import { MageBasicSpell } from "../Spells/MageBasicSpell";
 import { MageProjectileSpell } from "../Spells/MageProjectileSpell";
-import Octopus from "../Enemies/Octopus";
-import Snake from "../Enemies/Snake";
 import { SnakeVenomProjectile } from "../Spells/SnakeVenomProjectile";
-import { HealthPotion } from "../Items/HealthPotion";
-import { ManaPotion } from "../Items/ManaPotion";
-import { Item } from "../Items/Item";
-import { HealthManaPotion } from "../Items/HealthManaPotion";
-import { Scepter } from "../Items/Scepter";
-import { FireMageFireOrb } from "../Spells/FireMageFireOrb";
+import { Letter } from "../Items/Letter";
 import { ReadNote } from "../Graphics/ReadNote";
 
 export default class LevelScene extends Phaser.Scene {
@@ -29,6 +31,7 @@ export default class LevelScene extends Phaser.Scene {
   private manaPotions!: Phaser.Physics.Arcade.Group;
   private healthManaPotions!: Phaser.Physics.Arcade.Group;
   private scepters!: Phaser.Physics.Arcade.Group;
+  private letters!: Phaser.Physics.Arcade.Group;
   private mapGenerator: MapGenerator;
   private player!: Player;
   private currentLevel: number = 1;
@@ -56,6 +59,14 @@ export default class LevelScene extends Phaser.Scene {
 
     // Create players group
     this.players = this.physics.add.group();
+
+    // Create letters group
+    this.letters = this.physics.add.group();
+    if (this.currentLevel === 2) {
+      const { x, y } = this.mapGenerator.getRandomNonRoomPosition();
+      const letter = new Letter(this, x, y, "second-note");
+      this.letters.add(letter);
+    }
 
     // Create player in the center
     const selectedCharacter = localStorage.getItem("selectedCharacter");
@@ -172,6 +183,10 @@ export default class LevelScene extends Phaser.Scene {
       });
     });
 
+    this.events.on("noteShow", () => {
+      this.readNote = false;
+    });
+
     // Create some enemies
     for (let i = 0; i < this.currentLevel * 2; i++) {
       const { x, y } = this.mapGenerator.getRandomNonRoomPosition();
@@ -270,6 +285,14 @@ export default class LevelScene extends Phaser.Scene {
       undefined,
       this
     );
+
+    this.physics.add.overlap(
+      this.letters,
+      this.players,
+      this.handleLetterPickup,
+      undefined,
+      this
+    );
     // Create level indicator
     this.add
       .text(16, 16, `Level: ${this.currentLevel}`, {
@@ -285,24 +308,11 @@ export default class LevelScene extends Phaser.Scene {
 
   create() {
     if (this.currentLevel === 1) {
-      new ReadNote(
-        this,
-        `Uri,
-
-Llegó el momento. Lo encontramos. El acceso al dungeon del que tantos hablaban... está abierto. No sé por cuánto tiempo.
-
-Desde fuera ya se siente algo distinto, como si el lugar respirara. Cada vez que entro, el camino cambia. Nada se mantiene igual. Es como si no quisiera ser comprendido.
-
-No te voy a mentir, no es un lugar seguro. Pero también hay cosas ahí abajo que no vas a encontrar en ningún otro lado. He visto puertas que no deberían existir, cofres con símbolos que no reconozco. Hay algo grande esperándonos.
-
-Te espero adentro. No tardes.
-— A`
-      )
-        .show()
-        .then(() => {
-          this.readNote = true;
-          this.prepareLevel();
-        });
+      const firstNote = new ReadNote(this, NotesMap.get("first-note") || "");
+      firstNote.show().then(() => {
+        this.readNote = true;
+        this.prepareLevel();
+      });
     }
   }
 
@@ -318,10 +328,12 @@ Te espero adentro. No tardes.
       !this.levelTransitionCooldown
     ) {
       this.levelTransitionCooldown = true;
+      this.cameras.main.fade(1000, 255, 255, 255);
       // Increase level
       this.currentLevel++;
 
       this.time.delayedCall(1000, () => {
+        this.cameras.main.fadeIn(1000, 255, 255, 255);
         this.prepareLevel();
         this.levelTransitionCooldown = false;
       });
@@ -463,6 +475,16 @@ Te espero adentro. No tardes.
       scepter.canUse(player)
     ) {
       scepter.use(player);
+    }
+  }
+
+  private handleLetterPickup(letter: any, player: any) {
+    if (letter instanceof Letter && player instanceof Player) {
+      this.readNote = false;
+      letter.collect(player, () => {
+        this.readNote = true;
+      });
+      this.letters.remove(letter);
     }
   }
 }
