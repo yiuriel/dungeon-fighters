@@ -21,6 +21,7 @@ import { MageProjectileSpell } from "../Spells/MageProjectileSpell";
 import { SnakeVenomProjectile } from "../Spells/SnakeVenomProjectile";
 import { Letter } from "../Items/Letter";
 import { ReadNote } from "../Graphics/ReadNote";
+import { SceneManager } from "../helpers/SceneManager";
 
 export default class LevelScene extends Phaser.Scene {
   private players!: Phaser.Physics.Arcade.Group;
@@ -37,10 +38,11 @@ export default class LevelScene extends Phaser.Scene {
   private currentLevel: number = 1;
   private levelTransitionCooldown: boolean = false;
   private readNote: boolean = false;
+  private sceneManager: SceneManager;
 
   constructor() {
     super("LevelScene");
-
+    this.sceneManager = new SceneManager(this);
     this.mapGenerator = new MapGenerator(this);
   }
 
@@ -307,6 +309,8 @@ export default class LevelScene extends Phaser.Scene {
   }
 
   create() {
+    this.sceneManager.fadeIn(500);
+
     if (this.currentLevel === 1) {
       const firstNote = new ReadNote(this, NotesMap.get("first-note") || "");
       firstNote.show().then(() => {
@@ -316,7 +320,7 @@ export default class LevelScene extends Phaser.Scene {
     }
   }
 
-  update() {
+  async update() {
     if (!this.readNote) {
       return;
     }
@@ -328,14 +332,14 @@ export default class LevelScene extends Phaser.Scene {
       !this.levelTransitionCooldown
     ) {
       this.levelTransitionCooldown = true;
-      this.cameras.main.fade(1000, 255, 255, 255);
-      // Increase level
-      this.currentLevel++;
+      this.sceneManager.fadeOut(500).then(() => {
+        // Increase level
+        this.currentLevel++;
 
-      this.time.delayedCall(1000, () => {
-        this.cameras.main.fadeIn(1000, 255, 255, 255);
-        this.prepareLevel();
-        this.levelTransitionCooldown = false;
+        this.sceneManager.fadeIn(500).then(() => {
+          this.prepareLevel();
+          this.levelTransitionCooldown = false;
+        });
       });
     }
 

@@ -4,13 +4,16 @@ import { FireMage } from "../Players/FireMage";
 import { Mage } from "../Players/Mage";
 import { Player } from "../Players/Player";
 import { MapGenerator } from "../Map/MapGenerator";
+import { SceneManager } from "../helpers/SceneManager";
 
 export default class StartScreenScene extends Phaser.Scene {
   private selectedCharacter: string | null = null;
   selectedCharacterButtonText: Phaser.GameObjects.Text | null = null;
+  private sceneManager: SceneManager;
 
   constructor() {
     super("StartScreenScene");
+    this.sceneManager = new SceneManager(this);
   }
 
   create() {
@@ -97,7 +100,9 @@ export default class StartScreenScene extends Phaser.Scene {
     // Make button interactive with enhanced effects
     button
       .setInteractive({ useHandCursor: true })
-      .on("pointerdown", () => this.scene.start("LevelScene"))
+      .on("pointerdown", () =>
+        this.sceneManager.fadeOut().then(() => this.scene.start("LevelScene"))
+      )
       .on("pointerover", () => {
         button.fillColor = 0x8888ff;
         buttonGlow.setScale(1.1);
