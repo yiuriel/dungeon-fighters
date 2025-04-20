@@ -16,10 +16,10 @@ export class ReadNote {
 
     // Add semi-transparent background
     const bg = this.scene.add.rectangle(
-      0,
-      0,
-      this.scene.cameras.main.width,
-      this.scene.cameras.main.height,
+      this.scene.cameras.main.width / 2,
+      this.scene.cameras.main.height / 2,
+      WINDOW_WIDTH,
+      WINDOW_HEIGHT,
       0x000000,
       0.7
     );

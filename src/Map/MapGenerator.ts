@@ -190,6 +190,8 @@ export class MapGenerator {
   createRocks(layer: Phaser.Tilemaps.TilemapLayer): void {
     const numRocks = Phaser.Math.Between(10, 20);
 
+    console.log("Creating rocks", this.map);
+
     for (let i = 0; i < numRocks; i++) {
       // Get random position
       const x = Phaser.Math.Between(1, this.mapWidth - 2);
@@ -199,6 +201,7 @@ export class MapGenerator {
       const tile = layer.getTileAt(x, y, false);
       if (
         tile &&
+        this.map[y][x] <= TileType.FLOOR_ALT_5 &&
         [
           TileType.FLOOR,
           TileType.FLOOR_ALT_1,
@@ -222,16 +225,29 @@ export class MapGenerator {
   }
 
   private createBoundaries() {
-    // Top boundary
-    for (let x = 0; x < this.mapWidth; x++) {
+    // Top boundary - now 2 blocks high
+    // Top row with tile 17 (except corners)
+    for (let x = 1; x < this.mapWidth - 1; x++) {
       const wall = this.boundaries.create(
         x * this.tileSize + this.tileSize / 2,
         this.tileSize / 2,
         "tiles",
-        TileType.WALL_TOP
+        TileType.ROOM_BOTTOM
       );
       wall.setSize(this.tileSize, this.tileSize);
-      this.map[0][x] = TileType.WALL_TOP;
+      this.map[0][x] = TileType.ROOM_BOTTOM;
+    }
+
+    // Second row with tile 21 (except corners)
+    for (let x = 1; x < this.mapWidth - 1; x++) {
+      const wall = this.boundaries.create(
+        x * this.tileSize + this.tileSize / 2,
+        this.tileSize + this.tileSize / 2,
+        "tiles",
+        TileType.ROOM_BOTTOM_MIDDLE_WALL
+      );
+      wall.setSize(this.tileSize, this.tileSize);
+      this.map[1][x] = TileType.ROOM_BOTTOM_MIDDLE_WALL;
     }
 
     // Bottom boundary
@@ -246,8 +262,8 @@ export class MapGenerator {
       this.map[this.mapHeight - 1][x] = TileType.WALL_BOTTOM;
     }
 
-    // Left boundary
-    for (let y = 0; y < this.mapHeight; y++) {
+    // Left boundary - excluding the top 2 rows which are handled separately
+    for (let y = 2; y < this.mapHeight - 1; y++) {
       const wall = this.boundaries.create(
         this.tileSize / 2,
         y * this.tileSize + this.tileSize / 2,
@@ -258,8 +274,8 @@ export class MapGenerator {
       this.map[y][0] = TileType.WALL_LEFT;
     }
 
-    // Right boundary
-    for (let y = 0; y < this.mapHeight; y++) {
+    // Right boundary - excluding the top 2 rows which are handled separately
+    for (let y = 2; y < this.mapHeight - 1; y++) {
       const wall = this.boundaries.create(
         (this.mapWidth - 1) * this.tileSize + this.tileSize / 2,
         y * this.tileSize + this.tileSize / 2,
@@ -270,7 +286,8 @@ export class MapGenerator {
       this.map[y][this.mapWidth - 1] = TileType.WALL_RIGHT;
     }
 
-    // Corners
+    // Special corners for the top part of the map
+    // Top-left corner (24)
     this.boundaries.create(
       this.tileSize / 2,
       this.tileSize / 2,
@@ -278,6 +295,8 @@ export class MapGenerator {
       TileType.WALL_CORNER_TOP_LEFT
     );
     this.map[0][0] = TileType.WALL_CORNER_TOP_LEFT;
+
+    // Top-right corner (26)
     this.boundaries.create(
       (this.mapWidth - 1) * this.tileSize + this.tileSize / 2,
       this.tileSize / 2,
@@ -285,6 +304,26 @@ export class MapGenerator {
       TileType.WALL_CORNER_TOP_RIGHT
     );
     this.map[0][this.mapWidth - 1] = TileType.WALL_CORNER_TOP_RIGHT;
+
+    // Second row left corner (28)
+    this.boundaries.create(
+      this.tileSize / 2,
+      this.tileSize + this.tileSize / 2,
+      "tiles",
+      TileType.WALL_LEFT
+    );
+    this.map[1][0] = TileType.WALL_LEFT;
+
+    // Second row right corner (30)
+    this.boundaries.create(
+      (this.mapWidth - 1) * this.tileSize + this.tileSize / 2,
+      this.tileSize + this.tileSize / 2,
+      "tiles",
+      TileType.WALL_RIGHT
+    );
+    this.map[1][this.mapWidth - 1] = TileType.WALL_RIGHT;
+
+    // Bottom corners
     this.boundaries.create(
       this.tileSize / 2,
       (this.mapHeight - 1) * this.tileSize + this.tileSize / 2,
@@ -292,6 +331,7 @@ export class MapGenerator {
       TileType.WALL_CORNER_BOTTOM_LEFT
     );
     this.map[this.mapHeight - 1][0] = TileType.WALL_CORNER_BOTTOM_LEFT;
+
     this.boundaries.create(
       (this.mapWidth - 1) * this.tileSize + this.tileSize / 2,
       (this.mapHeight - 1) * this.tileSize + this.tileSize / 2,
@@ -300,6 +340,8 @@ export class MapGenerator {
     );
     this.map[this.mapHeight - 1][this.mapWidth - 1] =
       TileType.WALL_CORNER_BOTTOM_RIGHT;
+
+    console.log([...this.map]);
   }
 
   public mapToPixel(mapX: number, mapY: number): { x: number; y: number } {
