@@ -185,10 +185,6 @@ export default class LevelScene extends Phaser.Scene {
       });
     });
 
-    this.events.on("noteShow", () => {
-      this.readNote = false;
-    });
-
     // Create some enemies
     for (let i = 0; i < this.currentLevel * 2; i++) {
       const { x, y } = this.mapGenerator.getRandomNonRoomPosition();
@@ -335,9 +331,9 @@ export default class LevelScene extends Phaser.Scene {
       this.sceneManager.fadeOut(500).then(() => {
         // Increase level
         this.currentLevel++;
+        this.prepareLevel();
 
         this.sceneManager.fadeIn(500).then(() => {
-          this.prepareLevel();
           this.levelTransitionCooldown = false;
         });
       });
@@ -484,11 +480,17 @@ export default class LevelScene extends Phaser.Scene {
 
   private handleLetterPickup(letter: any, player: any) {
     if (letter instanceof Letter && player instanceof Player) {
-      this.readNote = false;
-      letter.collect(player, () => {
-        this.readNote = true;
+      // Pause current scene and start ReadNoteScene
+      const noteId = letter.collect();
+      this.scene.pause();
+      this.scene.launch("ReadNoteScene", {
+        text: NotesMap.get(noteId) || "",
+        parentScene: this,
+        onClose: () => {
+          this.scene.resume();
+        },
       });
-      this.letters.remove(letter);
+      this.letters.clear(true, true);
     }
   }
 }

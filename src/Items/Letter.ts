@@ -1,8 +1,6 @@
 import Phaser from "phaser";
+import { NoteId } from "../Common/NoteMap";
 import { Item, ItemType } from "./Item";
-import { Player } from "../Players/Player";
-import { NotesMap, NoteId } from "../Common/NoteMap";
-import { ReadNote } from "../Graphics/ReadNote";
 
 export class Letter extends Item {
   private noteId: NoteId;
@@ -24,17 +22,8 @@ export class Letter extends Item {
     });
   }
 
-  public collect(_: Player, onNoteClose: () => void): void {
-    // Collect the letter by player inventory
-    if (NotesMap.has(this.noteId)) {
-      const note = NotesMap.get(this.noteId);
-      if (note) {
-        // Display the note content
-        const readNote = new ReadNote(this.scene, note, () => {
-          onNoteClose();
-        });
-        readNote.show();
-      }
-    }
+  public collect(): NoteId {
+    this.destroy();
+    return this.noteId;
   }
 }

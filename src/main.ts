@@ -3,12 +3,13 @@ import { WINDOW_HEIGHT, WINDOW_WIDTH } from "./constants";
 import AssetPreloadScene from "./Scenes/AssetPreloadScene";
 import LevelScene from "./Scenes/LevelScene";
 import StartScreenScene from "./Scenes/StartScreenScene";
+import ReadNoteScene from "./Scenes/ReadNoteScene";
 
 const config: Phaser.Types.Core.GameConfig = {
   type: Phaser.AUTO,
   width: WINDOW_WIDTH,
   height: WINDOW_HEIGHT,
-  scene: [AssetPreloadScene, StartScreenScene, LevelScene],
+  scene: [AssetPreloadScene, StartScreenScene, LevelScene, ReadNoteScene],
   physics: {
     default: "arcade",
     arcade: {
