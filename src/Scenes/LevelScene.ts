@@ -34,8 +34,10 @@ export default class LevelScene extends Phaser.Scene {
   private scepters!: Phaser.Physics.Arcade.Group;
   private letters!: Phaser.Physics.Arcade.Group;
   private mapGenerator: MapGenerator;
+  private stairsCollider!: Phaser.Physics.Arcade.Collider;
   private player!: Player;
   private currentLevel: number = 1;
+  private levelFinishCooldown: boolean = false;
   private levelTransitionCooldown: boolean = false;
   private readNote: boolean = false;
   private sceneManager: SceneManager;
@@ -325,18 +327,26 @@ export default class LevelScene extends Phaser.Scene {
     if (
       this.enemies &&
       this.enemies.getChildren().length === 0 &&
-      !this.levelTransitionCooldown
+      !this.levelFinishCooldown
     ) {
-      this.levelTransitionCooldown = true;
-      this.sceneManager.fadeOut(500).then(() => {
-        // Increase level
-        this.currentLevel++;
-        this.prepareLevel();
-
-        this.sceneManager.fadeIn(500).then(() => {
-          this.levelTransitionCooldown = false;
-        });
-      });
+      this.levelFinishCooldown = true;
+      this.cameras.main.shake(
+        300,
+        0.03,
+        true,
+        (_: Phaser.Cameras.Scene2D.Camera, progress: number) => {
+          if (progress === 1) {
+            const stairs = this.mapGenerator.createStairs();
+            this.stairsCollider = this.physics.add.overlap(
+              this.players,
+              stairs,
+              this.handlePlayerStairsCollision,
+              undefined,
+              this
+            );
+          }
+        }
+      );
     }
 
     // Update players
@@ -352,6 +362,24 @@ export default class LevelScene extends Phaser.Scene {
         enemy.update();
       }
     });
+  }
+
+  private handlePlayerStairsCollision(player: any, _: any) {
+    this.physics.world.removeCollider(this.stairsCollider);
+    if (player instanceof Player && !this.levelTransitionCooldown) {
+      this.levelTransitionCooldown = true;
+      console.log("Player collided with stairs");
+      this.sceneManager.fadeOut(500).then(() => {
+        // Increase level
+        this.currentLevel++;
+        this.prepareLevel();
+
+        this.sceneManager.fadeIn(500).then(() => {
+          this.levelFinishCooldown = false;
+          this.levelTransitionCooldown = false;
+        });
+      });
+    }
   }
 
   private handlePlayerEnemyCollision(player: any, enemy: any) {

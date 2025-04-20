@@ -58,6 +58,11 @@ export class MapGenerator {
       frameHeight: this.tileSize,
     });
 
+    this.scene.load.spritesheet("stairs", "assets/tilesets/stairs.png", {
+      frameWidth: this.tileSize,
+      frameHeight: this.tileSize,
+    });
+
     this.scene.load.spritesheet(
       "rock-tiles",
       "assets/tilesets/rock-tiles.png",
@@ -70,6 +75,108 @@ export class MapGenerator {
 
   public getBoundaries(): Phaser.Physics.Arcade.StaticGroup {
     return this.boundaries;
+  }
+
+  /**
+   * Creates stairs in the upper boundary of the map at a random position
+   * Ensures that there are at least two floor blocks below the stairs
+   * @returns The created stairs sprites as a group
+   */
+  public createStairs(): Phaser.Physics.Arcade.Group {
+    // Create a group for the stairs
+    const stairsGroup = this.scene.physics.add.group();
+
+    // Find a valid position for the stairs
+    let startX = 0;
+    let isValidPosition = false;
+    let maxAttempts = 50;
+    let attempts = 0;
+
+    while (!isValidPosition && attempts < maxAttempts) {
+      attempts++;
+      // Pick a random position along the top wall (leaving space for stairs width)
+      startX = Phaser.Math.Between(1, this.mapWidth - 3);
+
+      // Check if there are at least two floor blocks below the stairs
+      const hasFloorBelow =
+        // Check the two blocks directly below the stairs
+        this.isFloorTile(this.map[2][startX]) &&
+        this.isFloorTile(this.map[2][startX + 1]) &&
+        // Check the row below that as well for good measure
+        this.isFloorTile(this.map[3][startX]) &&
+        this.isFloorTile(this.map[3][startX + 1]);
+
+      if (hasFloorBelow) {
+        isValidPosition = true;
+      }
+    }
+
+    // If we couldn't find a valid position, use a default one
+    if (!isValidPosition) {
+      console.warn(
+        "Could not find a valid position for stairs, using default position"
+      );
+      startX = Math.floor(this.mapWidth / 2) - 1;
+    }
+
+    // Remove existing boundary tiles in this position
+    for (let y = 0; y < 2; y++) {
+      for (let x = 0; x < 2; x++) {
+        // Find and destroy the existing boundary sprites at these positions
+        this.boundaries.getChildren().forEach((child) => {
+          const sprite = child as Phaser.Physics.Arcade.Sprite;
+          const spriteX = Math.floor(sprite.x / this.tileSize);
+          const spriteY = Math.floor(sprite.y / this.tileSize);
+
+          if (spriteX === startX + x && spriteY === y) {
+            sprite.destroy();
+          }
+        });
+      }
+    }
+
+    // Create the 2x2 stairs (using 4 frames from the stairs tileset)
+    // Top-left corner (frame 0)
+    const topLeft = this.scene.physics.add.sprite(
+      startX * this.tileSize + this.tileSize / 2,
+      this.tileSize / 2,
+      "stairs",
+      0
+    );
+    stairsGroup.add(topLeft);
+    this.map[0][startX] = -1; // Mark as stairs with a special value
+
+    // Top-right corner (frame 1)
+    const topRight = this.scene.physics.add.sprite(
+      (startX + 1) * this.tileSize + this.tileSize / 2,
+      this.tileSize / 2,
+      "stairs",
+      1
+    );
+    stairsGroup.add(topRight);
+    this.map[0][startX + 1] = -1;
+
+    // Bottom-left corner (frame 2)
+    const bottomLeft = this.scene.physics.add.sprite(
+      startX * this.tileSize + this.tileSize / 2,
+      this.tileSize + this.tileSize / 2,
+      "stairs",
+      2
+    );
+    stairsGroup.add(bottomLeft);
+    this.map[1][startX] = -1;
+
+    // Bottom-right corner (frame 3)
+    const bottomRight = this.scene.physics.add.sprite(
+      (startX + 1) * this.tileSize + this.tileSize / 2,
+      this.tileSize + this.tileSize / 2,
+      "stairs",
+      3
+    );
+    stairsGroup.add(bottomRight);
+    this.map[1][startX + 1] = -1;
+
+    return stairsGroup;
   }
 
   public getMapHeight(): number {
@@ -190,8 +297,6 @@ export class MapGenerator {
   createRocks(layer: Phaser.Tilemaps.TilemapLayer): void {
     const numRocks = Phaser.Math.Between(10, 20);
 
-    console.log("Creating rocks", this.map);
-
     for (let i = 0; i < numRocks; i++) {
       // Get random position
       const x = Phaser.Math.Between(1, this.mapWidth - 2);
@@ -201,15 +306,8 @@ export class MapGenerator {
       const tile = layer.getTileAt(x, y, false);
       if (
         tile &&
-        this.map[y][x] <= TileType.FLOOR_ALT_5 &&
-        [
-          TileType.FLOOR,
-          TileType.FLOOR_ALT_1,
-          TileType.FLOOR_ALT_2,
-          TileType.FLOOR_ALT_3,
-          TileType.FLOOR_ALT_4,
-          TileType.FLOOR_ALT_5,
-        ].includes(tile.index)
+        this.isFloorTile(tile.index) &&
+        this.map[y][x] <= TileType.FLOOR_ALT_5
       ) {
         // Create rock and add to boundaries
         const rock = this.boundaries.create(
@@ -340,8 +438,6 @@ export class MapGenerator {
     );
     this.map[this.mapHeight - 1][this.mapWidth - 1] =
       TileType.WALL_CORNER_BOTTOM_RIGHT;
-
-    console.log([...this.map]);
   }
 
   public mapToPixel(mapX: number, mapY: number): { x: number; y: number } {
@@ -625,6 +721,22 @@ export class MapGenerator {
         });
       }
     }
+  }
+
+  /**
+   * Checks if a tile is a floor tile
+   * @param tile The tile index to check
+   * @returns True if the tile is a floor tile, false otherwise
+   */
+  private isFloorTile(tile: number): boolean {
+    return [
+      TileType.FLOOR,
+      TileType.FLOOR_ALT_1,
+      TileType.FLOOR_ALT_2,
+      TileType.FLOOR_ALT_3,
+      TileType.FLOOR_ALT_4,
+      TileType.FLOOR_ALT_5,
+    ].includes(tile);
   }
 
   private getRandomFloorTile(): TileType {
