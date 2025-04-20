@@ -77,7 +77,7 @@ export class FireMage extends Player {
   }
 
   updateSpecific(): void {
-    // Mage specific movement and behavior
+    // Check for keyboard input
     if (this.fireShieldKey.isDown) {
       this.castFireShield();
     }
@@ -88,6 +88,25 @@ export class FireMage extends Player {
 
     if (this.fireOrbKey.isDown) {
       this.castFireOrb();
+    }
+
+    // Check for gamepad input if available
+    if (this.gamepad && this.gamepad.connected) {
+      // Map gamepad buttons to spells
+      // A button (or Cross on PlayStation) - Fire Shield
+      if (this.gamepad.A || this.gamepad.buttons[0].pressed) {
+        this.castFireShield();
+      }
+
+      // B button (or Circle on PlayStation) - Fire Circle
+      if (this.gamepad.B || this.gamepad.buttons[1].pressed) {
+        this.castFireCircle();
+      }
+
+      // X button (or Square on PlayStation) - Fire Orb
+      if (this.gamepad.X || this.gamepad.buttons[2].pressed) {
+        this.castFireOrb();
+      }
     }
 
     this.manaBar.update();

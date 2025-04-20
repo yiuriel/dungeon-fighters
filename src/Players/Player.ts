@@ -7,6 +7,7 @@ export abstract class Player extends Phaser.Physics.Arcade.Sprite {
   protected prefix: string;
   protected facing: string = "down";
   protected cursors!: Phaser.Types.Input.Keyboard.CursorKeys;
+  protected gamepad: Phaser.Input.Gamepad.Gamepad | null = null;
   protected healthBar: HealthBar;
   protected maxHealth: number = 100;
   protected damageMultiplier: number = 1.0;
@@ -47,6 +48,23 @@ export abstract class Player extends Phaser.Physics.Arcade.Sprite {
     }
     this.cursors = scene.input.keyboard.createCursorKeys();
 
+    // Enable gamepad input if available
+    if (scene.input.gamepad) {
+      scene.input.gamepad.once(
+        "connected",
+        (pad: Phaser.Input.Gamepad.Gamepad) => {
+          this.gamepad = pad;
+          console.log("Gamepad connected:", pad.id);
+        }
+      );
+
+      // If a gamepad is already connected, use it
+      if (scene.input.gamepad.total > 0) {
+        this.gamepad = scene.input.gamepad.getPad(0);
+        console.log("Using gamepad:", this.gamepad.id);
+      }
+    }
+
     this.createAnimations();
   }
 
@@ -63,26 +81,77 @@ export abstract class Player extends Phaser.Physics.Arcade.Sprite {
     // Reset velocity
     this.setVelocity(0);
 
-    // Handle keyboard movement
-    if (this.cursors.left.isDown) {
-      this.setVelocityX(-this.speed);
-      this.facing = "left";
-    } else if (this.cursors.right.isDown) {
-      this.setVelocityX(this.speed);
-      this.facing = "right";
+    // Variables to track input from any source
+    let moveLeft = this.cursors.left.isDown;
+    let moveRight = this.cursors.right.isDown;
+    let moveUp = this.cursors.up.isDown;
+    let moveDown = this.cursors.down.isDown;
+
+    // Check for gamepad input if available
+    if (this.gamepad && this.gamepad.connected) {
+      // D-pad support
+      if (this.gamepad.left) moveLeft = true;
+      if (this.gamepad.right) moveRight = true;
+      if (this.gamepad.up) moveUp = true;
+      if (this.gamepad.down) moveDown = true;
+
+      // Left analog stick support with deadzone (0.1)
+      const leftStickX = this.gamepad.leftStick.x;
+      const leftStickY = this.gamepad.leftStick.y;
+      const deadzone = 0.1;
+
+      if (leftStickX < -deadzone) {
+        moveLeft = true;
+        // Proportional speed based on stick position
+        this.setVelocityX(-this.speed * Math.abs(leftStickX));
+        this.facing = "left";
+      } else if (leftStickX > deadzone) {
+        moveRight = true;
+        this.setVelocityX(this.speed * Math.abs(leftStickX));
+        this.facing = "right";
+      }
+
+      if (leftStickY < -deadzone) {
+        moveUp = true;
+        this.setVelocityY(-this.speed * Math.abs(leftStickY));
+        // Only change facing if not moving horizontally
+        if (Math.abs(leftStickX) <= deadzone) {
+          this.facing = "up";
+        }
+      } else if (leftStickY > deadzone) {
+        moveDown = true;
+        this.setVelocityY(this.speed * Math.abs(leftStickY));
+        // Only change facing if not moving horizontally
+        if (Math.abs(leftStickX) <= deadzone) {
+          this.facing = "down";
+        }
+      }
     }
 
-    if (this.cursors.up.isDown) {
-      this.setVelocityY(-this.speed);
-      // Only change facing if not moving horizontally
-      if (!this.cursors.left.isDown && !this.cursors.right.isDown) {
-        this.facing = "up";
+    // Apply keyboard movement if not already moved by gamepad
+    if (!this.gamepad || !this.gamepad.leftStick.x) {
+      if (moveLeft) {
+        this.setVelocityX(-this.speed);
+        this.facing = "left";
+      } else if (moveRight) {
+        this.setVelocityX(this.speed);
+        this.facing = "right";
       }
-    } else if (this.cursors.down.isDown) {
-      this.setVelocityY(this.speed);
-      // Only change facing if not moving horizontally
-      if (!this.cursors.left.isDown && !this.cursors.right.isDown) {
-        this.facing = "down";
+    }
+
+    if (!this.gamepad || !this.gamepad.leftStick.y) {
+      if (moveUp) {
+        this.setVelocityY(-this.speed);
+        // Only change facing if not moving horizontally
+        if (!moveLeft && !moveRight) {
+          this.facing = "up";
+        }
+      } else if (moveDown) {
+        this.setVelocityY(this.speed);
+        // Only change facing if not moving horizontally
+        if (!moveLeft && !moveRight) {
+          this.facing = "down";
+        }
       }
     }
 

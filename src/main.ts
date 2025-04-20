@@ -32,6 +32,9 @@ const config: Phaser.Types.Core.GameConfig = {
     pixelArt: true,
     roundPixels: true,
   },
+  input: {
+    gamepad: true,
+  },
 };
 
 new Phaser.Game(config);

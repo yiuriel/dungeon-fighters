@@ -85,7 +85,7 @@ export class Mage extends Player {
   }
 
   updateSpecific(): void {
-    // Mage specific movement and behavior
+    // Check for keyboard input
     if (this.castSpellKey.isDown) {
       this.castSpell();
     }
@@ -96,6 +96,25 @@ export class Mage extends Player {
 
     if (this.teleportSpellKey.isDown) {
       this.teleport();
+    }
+    
+    // Check for gamepad input if available
+    if (this.gamepad && this.gamepad.connected) {
+      // Map gamepad buttons to spells
+      // A button (or Cross on PlayStation) - Basic attack
+      if (this.gamepad.A || this.gamepad.buttons[0].pressed) {
+        this.castSpell();
+      }
+      
+      // B button (or Circle on PlayStation) - Projectile spell
+      if (this.gamepad.B || this.gamepad.buttons[1].pressed) {
+        this.castProjectileSpell();
+      }
+      
+      // X button (or Square on PlayStation) - Teleport spell
+      if (this.gamepad.X || this.gamepad.buttons[2].pressed) {
+        this.teleport();
+      }
     }
 
     this.manaBar.update();
