@@ -1,4 +1,9 @@
-export type NoteId = "first-note" | "second-note";
+export type NoteId =
+  | "first-note"
+  | "second-note"
+  | "third-note"
+  | "fourth-note"
+  | "fifth-note";
 
 export const NotesMap = new Map<NoteId, string>();
 

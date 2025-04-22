@@ -156,6 +156,16 @@ export default class AssetPreloadScene extends Phaser.Scene {
         frameHeight: 32,
       }
     );
+
+    // Load UI assets
+    this.load.spritesheet(
+      "fire_particle",
+      "assets/common/fire_particle.png",
+      {
+        frameWidth: 16,
+        frameHeight: 16,
+      }
+    );
     // load items finish
 
     console.log("Assets loaded");

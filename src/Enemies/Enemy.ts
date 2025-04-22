@@ -424,10 +424,6 @@ export abstract class Enemy extends Phaser.Physics.Arcade.Sprite {
       this.body.enable = false;
     }
 
-    // Fade out animation before destroying
-    // Fade out animation with tint
-    console.log(this.getPrefix());
-
     this.scene.tweens.add({
       targets: this,
       alpha: 0,

@@ -1,5 +1,5 @@
 import Phaser from "phaser";
-import { NotesMap } from "../Common/NoteMap";
+import { NoteId, NotesMap } from "../Common/NoteMap";
 import { Enemy } from "../Enemies/Enemy";
 import Octopus from "../Enemies/Octopus";
 import Snake from "../Enemies/Snake";
@@ -50,6 +50,9 @@ export default class LevelScene extends Phaser.Scene {
   prepareLevel() {
     // Clear existing content
     this.children.removeAll();
+
+    this.levelFinishCooldown = false;
+    this.levelTransitionCooldown = false;
 
     this.physics.world.drawDebug = true;
 
@@ -257,7 +260,6 @@ export default class LevelScene extends Phaser.Scene {
       return;
     }
 
-    // Check if all enemies are defeated
     if (
       this.enemies &&
       this.enemies.getChildren().length === 0 &&
@@ -300,16 +302,38 @@ export default class LevelScene extends Phaser.Scene {
     if (!this.levelTransitionCooldown) {
       this.levelTransitionCooldown = true;
       console.log("Player collided with stairs");
-      this.sceneManager.fadeOut(500).then(() => {
+      this.sceneManager.fadeOut(500).then(async () => {
         // Increase level
         this.currentLevel++;
         this.prepareLevel();
 
-        this.sceneManager.fadeIn(500).then(() => {
-          this.levelFinishCooldown = false;
-          this.levelTransitionCooldown = false;
-        });
+        await this.sceneManager.fadeIn(500);
       });
     }
+  }
+
+  addLetter() {
+    switch (this.currentLevel) {
+      case 2:
+        this.addLetterBasedOnLevel("second-note");
+        break;
+      case 3:
+        this.addLetterBasedOnLevel("third-note");
+        break;
+      case 4:
+        this.addLetterBasedOnLevel("fourth-note");
+        break;
+      case 5:
+        this.addLetterBasedOnLevel("fifth-note");
+        break;
+      default:
+        break;
+    }
+  }
+
+  addLetterBasedOnLevel(noteId: NoteId) {
+    const { x, y } = this.mapGenerator.getRandomNonRoomPosition();
+    const letter = new Letter(this, x, y, noteId);
+    this.letters.add(letter);
   }
 }

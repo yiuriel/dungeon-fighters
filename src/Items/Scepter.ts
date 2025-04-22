@@ -24,9 +24,14 @@ export class Scepter extends Item {
     );
   }
 
+  public canUse(player: Player): boolean {
+    return player.getScepter() === null;
+  }
+
   use(player: Player): void {
     // Apply damage multiplier
     player.setDamageMultiplier(this.damageMultiplier);
+    player.setScepter(this);
 
     // Create power-up bar if it doesn't exist
     if (!this.powerUpBar) {
@@ -62,6 +67,7 @@ export class Scepter extends Item {
       () => {
         // Reset damage multiplier
         player.setDamageMultiplier(1.0);
+        player.setScepter(null);
 
         // Remove the power-up bar
         if (this.powerUpBar) {
@@ -71,12 +77,12 @@ export class Scepter extends Item {
 
         // Remove the multiplier text
         if (this.multiplierText) {
-          this.multiplierText.destroy(true);
+          this.multiplierText.destroy();
           this.multiplierText = null;
         }
 
         // Destroy the item after the power-up finishes
-        this.destroy(true);
+        this.destroy();
       },
       [],
       this
@@ -137,6 +143,19 @@ export class Scepter extends Item {
         x + width / 2 - this.multiplierText.width / 2,
         y + height / 2 - this.multiplierText.height / 2
       );
+    }
+  }
+
+  destroy(_?: boolean) {
+    super.destroy();
+    if (this.buffTimer) {
+      this.buffTimer.remove();
+    }
+    if (this.powerUpBar) {
+      this.powerUpBar.destroy();
+    }
+    if (this.multiplierText) {
+      this.multiplierText.destroy();
     }
   }
 }

@@ -1,5 +1,6 @@
 import { HealthBar } from "../Common/HealthBar";
 import { Status } from "../Common/Status";
+import { Scepter } from "../Items/Scepter";
 
 export abstract class Player extends Phaser.Physics.Arcade.Sprite {
   protected health: number;
@@ -15,6 +16,8 @@ export abstract class Player extends Phaser.Physics.Arcade.Sprite {
 
   protected takingDamageCooldown: boolean = false;
   protected canMove: boolean = true;
+
+  private scepter: Scepter | null = null;
 
   constructor(
     scene: Phaser.Scene,
@@ -370,6 +373,14 @@ export abstract class Player extends Phaser.Physics.Arcade.Sprite {
 
   public onStatusFinished(): void {
     this.status = null;
+  }
+
+  public getScepter(): Scepter | null {
+    return this.scepter;
+  }
+
+  public setScepter(scepter: Scepter | null): void {
+    this.scepter = scepter;
   }
 
   destroy(fromScene?: boolean) {
