@@ -106,6 +106,20 @@ export abstract class Enemy extends Phaser.Physics.Arcade.Sprite {
       let targetX = Math.floor(player!.x / this.mapGenerator.getTileSize());
       let targetY = Math.floor(player!.y / this.mapGenerator.getTileSize());
 
+      // Check if target position is within map boundaries
+      const mapWidth = this.mapGenerator.getMapWidth();
+      const mapHeight = this.mapGenerator.getMapHeight();
+
+      // Don't do path finding if coordinates are outside map boundaries
+      if (
+        targetX < 0 ||
+        targetY < 0 ||
+        targetX >= mapWidth ||
+        targetY >= mapHeight
+      ) {
+        return;
+      }
+
       this.path = this.pathfinder.findPath(
         Math.floor(this.x / this.mapGenerator.getTileSize()),
         Math.floor(this.y / this.mapGenerator.getTileSize()),
@@ -400,6 +414,59 @@ export abstract class Enemy extends Phaser.Physics.Arcade.Sprite {
       }),
       frameRate: 8,
       repeat: -1,
+    });
+  }
+
+  public destroy(): void {
+    // Prevent any further movement
+    this.setVelocity(0, 0);
+    if (this.body) {
+      this.body.enable = false;
+    }
+
+    // Fade out animation before destroying
+    // Fade out animation with tint
+    console.log(this.getPrefix());
+
+    this.scene.tweens.add({
+      targets: this,
+      alpha: 0,
+      duration: 1000,
+      ease: "Power2",
+      onStart: () => {
+        this.setTint(0x000000);
+        const particles = this.scene.add.particles(
+          this.x,
+          this.y,
+          "monster_die_particle",
+          {
+            speed: { min: 30, max: 60 },
+            scale: { start: 1, end: 0.5 },
+            rotate: { min: 0, max: 360 },
+            alpha: { start: 1, end: 0 },
+            tint:
+              this.getPrefix() === "spider"
+                ? 0xffffff
+                : this.getPrefix() === "octopus"
+                ? 0x00bfff
+                : 0x006400,
+            quantity: 20,
+            lifespan: 200,
+            blendMode: Phaser.BlendModes.ADD,
+            emitting: true,
+          }
+        );
+
+        // Stop emitting particles after 1 second
+        this.scene.time.delayedCall(1000, () => {
+          particles.stop();
+        });
+
+        this.scene.time.delayedCall(1200, () => {
+          particles.destroy();
+          super.destroy();
+        });
+      },
     });
   }
 }

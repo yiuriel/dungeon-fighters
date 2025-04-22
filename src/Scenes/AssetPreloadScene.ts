@@ -147,6 +147,15 @@ export default class AssetPreloadScene extends Phaser.Scene {
       frameWidth: 16,
       frameHeight: 16,
     });
+
+    this.load.spritesheet(
+      "monster_die_particle",
+      "assets/common/monster_die_particle.png",
+      {
+        frameWidth: 32,
+        frameHeight: 32,
+      }
+    );
     // load items finish
 
     console.log("Assets loaded");

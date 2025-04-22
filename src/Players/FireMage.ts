@@ -69,7 +69,7 @@ export class FireMage extends Player {
 
     // Set up mana regeneration timer
     this.manaRegenTimer = scene.time.addEvent({
-      delay: 5000,
+      delay: 3000,
       callback: () => this.regenerateMana(10),
       callbackScope: this,
       loop: true,

@@ -1,27 +1,22 @@
 import Phaser from "phaser";
 import { NotesMap } from "../Common/NoteMap";
-import { Status } from "../Common/Status";
 import { Enemy } from "../Enemies/Enemy";
 import Octopus from "../Enemies/Octopus";
 import Snake from "../Enemies/Snake";
 import Spider from "../Enemies/Spider";
 import { HealthManaPotion } from "../Items/HealthManaPotion";
 import { HealthPotion } from "../Items/HealthPotion";
-import { Item } from "../Items/Item";
 import { ManaPotion } from "../Items/ManaPotion";
 import { Scepter } from "../Items/Scepter";
 import { MapGenerator } from "../Map/MapGenerator";
 import { FireMage } from "../Players/FireMage";
 import { Mage } from "../Players/Mage";
 import { Player } from "../Players/Player";
-import { FireMageFireCircle } from "../Spells/FireMageFireCircle";
-import { FireMageFireOrb } from "../Spells/FireMageFireOrb";
-import { MageBasicSpell } from "../Spells/MageBasicSpell";
 import { MageProjectileSpell } from "../Spells/MageProjectileSpell";
-import { SnakeVenomProjectile } from "../Spells/SnakeVenomProjectile";
 import { Letter } from "../Items/Letter";
 import { ReadNote } from "../Graphics/ReadNote";
 import { SceneManager } from "../helpers/SceneManager";
+import { ColliderManager } from "../Managers/ColliderManager";
 
 export default class LevelScene extends Phaser.Scene {
   private players!: Phaser.Physics.Arcade.Group;
@@ -34,13 +29,13 @@ export default class LevelScene extends Phaser.Scene {
   private scepters!: Phaser.Physics.Arcade.Group;
   private letters!: Phaser.Physics.Arcade.Group;
   private mapGenerator: MapGenerator;
-  private stairsCollider!: Phaser.Physics.Arcade.Collider;
   private player!: Player;
   private currentLevel: number = 1;
   private levelFinishCooldown: boolean = false;
   private levelTransitionCooldown: boolean = false;
   private readNote: boolean = false;
   private sceneManager: SceneManager;
+  private colliderManager!: ColliderManager;
 
   constructor() {
     super("LevelScene");
@@ -88,6 +83,19 @@ export default class LevelScene extends Phaser.Scene {
     }
     this.players.add(player);
     this.player = player;
+
+    // Shake camera effect
+    this.cameras.main.shake(
+      300,
+      0.005,
+      false,
+      (camera: Phaser.Cameras.Scene2D.Camera, progress: number) => {
+        if (progress === 1) {
+          // Reset camera when shake is complete
+          camera.resetFX();
+        }
+      }
+    );
 
     // Create enemies group
     this.enemies = this.physics.add.group();
@@ -203,96 +211,22 @@ export default class LevelScene extends Phaser.Scene {
       }
     }
 
-    // Set up collisions
-    this.physics.add.collider(this.players, this.mapGenerator.getBoundaries());
-    this.physics.add.collider(this.enemies, this.mapGenerator.getBoundaries());
-    this.physics.add.collider(
-      this.overlapSpells,
-      this.mapGenerator.getBoundaries()
-    );
-    this.physics.add.collider(
-      this.collideSpells,
-      this.mapGenerator.getBoundaries(),
-      this.handleSpellWallCollision,
-      undefined,
-      this
-    );
-
-    this.physics.add.collider(
-      this.enemies,
-      this.enemies,
-      this.handleEnemyEnemyCollision,
-      undefined,
-      this
-    );
-    this.physics.add.collider(
+    // Initialize and setup collisions using the ColliderManager
+    this.colliderManager = new ColliderManager(
+      this,
+      this.mapGenerator,
       this.players,
       this.enemies,
-      this.handlePlayerEnemyCollision,
-      undefined,
-      this
-    );
-    this.physics.add.overlap(
       this.overlapSpells,
-      this.enemies,
-      this.handleSpellEnemyCollision,
-      undefined,
-      this
-    );
-    this.physics.add.collider(
       this.collideSpells,
-      this.enemies,
-      this.handleProjectileSpellEnemyCollision,
-      undefined,
-      this
-    );
-    this.physics.add.collider(
-      this.players,
-      this.collideSpells,
-      this.handleEnemySpellPlayerCollision,
-      undefined,
-      this
-    );
-
-    this.physics.add.overlap(
       this.healthPotions,
-      this.players,
-      this.handlePotionPickup,
-      undefined,
-      this
-    );
-
-    this.physics.add.overlap(
       this.manaPotions,
-      this.players,
-      this.handlePotionPickup,
-      undefined,
-      this
-    );
-
-    this.physics.add.overlap(
       this.healthManaPotions,
-      this.players,
-      this.handlePotionPickup,
-      undefined,
-      this
-    );
-
-    this.physics.add.overlap(
       this.scepters,
-      this.players,
-      this.handleScepterPickup,
-      undefined,
-      this
+      this.letters
     );
 
-    this.physics.add.overlap(
-      this.letters,
-      this.players,
-      this.handleLetterPickup,
-      undefined,
-      this
-    );
+    this.colliderManager.setupCollisions();
     // Create level indicator
     this.add
       .text(16, 16, `Level: ${this.currentLevel}`, {
@@ -337,12 +271,9 @@ export default class LevelScene extends Phaser.Scene {
         (_: Phaser.Cameras.Scene2D.Camera, progress: number) => {
           if (progress === 1) {
             const stairs = this.mapGenerator.createStairs();
-            this.stairsCollider = this.physics.add.overlap(
-              this.players,
+            this.colliderManager.setupStairsCollision(
               stairs,
-              this.handlePlayerStairsCollision,
-              undefined,
-              this
+              this.handlePlayerStairsCollision.bind(this)
             );
           }
         }
@@ -364,9 +295,9 @@ export default class LevelScene extends Phaser.Scene {
     });
   }
 
-  private handlePlayerStairsCollision(player: any, _: any) {
-    this.physics.world.removeCollider(this.stairsCollider);
-    if (player instanceof Player && !this.levelTransitionCooldown) {
+  private handlePlayerStairsCollision(_: Player) {
+    this.colliderManager.removeStairsCollider();
+    if (!this.levelTransitionCooldown) {
       this.levelTransitionCooldown = true;
       console.log("Player collided with stairs");
       this.sceneManager.fadeOut(500).then(() => {
@@ -379,146 +310,6 @@ export default class LevelScene extends Phaser.Scene {
           this.levelTransitionCooldown = false;
         });
       });
-    }
-  }
-
-  private handlePlayerEnemyCollision(player: any, enemy: any) {
-    if (player instanceof Player && enemy instanceof Enemy) {
-      if (player instanceof FireMage && player.getFireShieldCooldown()) {
-        return;
-      } else {
-        player.takeDamage(enemy.doDamage());
-        player.smallKnockback();
-      }
-    }
-  }
-
-  private handleEnemyEnemyCollision(enemy1: any, enemy2: any) {
-    if (enemy1 instanceof Enemy && enemy2 instanceof Enemy) {
-      enemy1.knockback(enemy2);
-    }
-  }
-
-  private handleSpellEnemyCollision(spell: any, enemy: any) {
-    if (spell instanceof MageBasicSpell && enemy instanceof Enemy) {
-      // Only do damage if spell is still in active animation frame
-      if (spell.anims.currentAnim?.key === spell.getStartAnimationKey()) {
-        enemy.takeDamage(spell.getDamage());
-      }
-    }
-
-    if (spell instanceof FireMageFireCircle && enemy instanceof Enemy) {
-      // Only do damage if spell is still in active animation frame
-      if (spell.anims.currentAnim?.key === spell.getActiveAnimationKey()) {
-        enemy.takeDamage(
-          spell.getDamage(),
-          new Status(
-            this,
-            enemy,
-            "fire",
-            5,
-            5000,
-            enemy.getTakingDamageDuration(),
-            () => {
-              enemy.onStatusFinished();
-            }
-          )
-        );
-      }
-    }
-
-    if (spell instanceof FireMageFireOrb && enemy instanceof Enemy) {
-      // Only do damage if spell is still in active animation frame
-      if (
-        spell.anims.currentAnim?.key === spell.getIdleAnimationKey() ||
-        spell.anims.currentAnim?.key === spell.getStartAnimationKey()
-      ) {
-        enemy.takeDamage(
-          spell.getDamage(),
-          new Status(
-            this,
-            enemy,
-            "fire",
-            5,
-            8000,
-            enemy.getTakingDamageDuration(),
-            () => {
-              enemy.onStatusFinished();
-            }
-          )
-        );
-      }
-    }
-  }
-
-  private handleProjectileSpellEnemyCollision(
-    projectileSpell: any,
-    enemy: any
-  ) {
-    if (
-      projectileSpell instanceof MageProjectileSpell &&
-      enemy instanceof Enemy
-    ) {
-      enemy.takeDamage(projectileSpell.getDamage());
-      projectileSpell.destroy(true);
-    }
-  }
-
-  private handleEnemySpellPlayerCollision(player: any, spell: any) {
-    if (player instanceof Player && spell instanceof SnakeVenomProjectile) {
-      // Only do damage if spell is still in active animation frame
-      if (
-        spell.anims.currentAnim?.key === spell.getStartAnimationKey() ||
-        spell.anims.currentAnim?.key === spell.getIdleAnimationKey()
-      ) {
-        player.takeDamage(
-          spell.getDamage(),
-          new Status(this, player, "venom", 5, 2000, 1000, () => {
-            player.onStatusFinished();
-          })
-        );
-        spell.destroy(true);
-      }
-    }
-  }
-
-  private handleSpellWallCollision(spell: any, _: any) {
-    spell.destroy(true);
-  }
-
-  private handlePotionPickup(potion: any, player: any) {
-    if (
-      potion instanceof Item &&
-      player instanceof Player &&
-      potion.canUse(player)
-    ) {
-      potion.use(player);
-    }
-  }
-
-  private handleScepterPickup(scepter: any, player: any) {
-    if (
-      scepter instanceof Scepter &&
-      player instanceof Player &&
-      scepter.canUse(player)
-    ) {
-      scepter.use(player);
-    }
-  }
-
-  private handleLetterPickup(letter: any, player: any) {
-    if (letter instanceof Letter && player instanceof Player) {
-      // Pause current scene and start ReadNoteScene
-      const noteId = letter.collect();
-      this.scene.pause();
-      this.scene.launch("ReadNoteScene", {
-        text: NotesMap.get(noteId) || "",
-        parentScene: this,
-        onClose: () => {
-          this.scene.resume();
-        },
-      });
-      this.letters.clear(true, true);
     }
   }
 }

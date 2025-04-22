@@ -75,7 +75,7 @@ export class Mage extends Player {
 
     // Set up mana regeneration timer
     this.manaRegenTimer = scene.time.addEvent({
-      delay: 5000,
+      delay: 3000,
       callback: () => this.regenerateMana(10),
       callbackScope: this,
       loop: true,
@@ -97,7 +97,7 @@ export class Mage extends Player {
     if (this.teleportSpellKey.isDown) {
       this.teleport();
     }
-    
+
     // Check for gamepad input if available
     if (this.gamepad && this.gamepad.connected) {
       // Map gamepad buttons to spells
@@ -105,12 +105,12 @@ export class Mage extends Player {
       if (this.gamepad.A || this.gamepad.buttons[0].pressed) {
         this.castSpell();
       }
-      
+
       // B button (or Circle on PlayStation) - Projectile spell
       if (this.gamepad.B || this.gamepad.buttons[1].pressed) {
         this.castProjectileSpell();
       }
-      
+
       // X button (or Square on PlayStation) - Teleport spell
       if (this.gamepad.X || this.gamepad.buttons[2].pressed) {
         this.teleport();
