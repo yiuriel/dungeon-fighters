@@ -64,11 +64,7 @@ export default class LevelScene extends Phaser.Scene {
 
     // Create letters group
     this.letters = this.physics.add.group();
-    if (this.currentLevel === 2) {
-      const { x, y } = this.mapGenerator.getRandomNonRoomPosition();
-      const letter = new Letter(this, x, y, "second-note");
-      this.letters.add(letter);
-    }
+    this.addLetter();
 
     // Create player in the center
     const selectedCharacter = localStorage.getItem("selectedCharacter");

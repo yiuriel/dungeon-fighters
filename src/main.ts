@@ -14,10 +14,10 @@ const config: Phaser.Types.Core.GameConfig = {
     default: "arcade",
     arcade: {
       gravity: { y: 0, x: 0 },
-      debug: true,
-      debugShowBody: true,
-      debugShowVelocity: true,
-      debugBodyColor: 0x00ffff, // cyan, por ejemplo
+      debug: process.env.NODE_ENV === "development" ? true : false,
+      debugShowBody: process.env.NODE_ENV === "development" ? true : false,
+      debugShowVelocity: process.env.NODE_ENV === "development" ? true : false,
+      debugBodyColor: 0xff0000, // red
     },
   },
   pixelArt: true,

@@ -33,3 +33,51 @@ No estoy lejos. Te esperaré más adelante, donde el aire se vuelva más denso. 
 
 — A`
 );
+
+NotesMap.set(
+  "third-note",
+  `Uri,
+
+Las marcas que dejé... ya no están. O no las encuentro. Cada vez que creo reconocer una esquina o un corredor, algo cambia. Las paredes giran. Los techos respiran. No sé cómo explicarlo sin sonar como un loco.
+
+Estoy bajando, lo sé. Lo siento en los huesos. Pero también siento que algo sube. Como si el dungeon me respondiera. Como si me observara.
+
+He tenido que quedarme quieto más tiempo del que me gustaría. No por miedo, sino porque el silencio a veces es lo único que me mantiene cuerdo. No todos los sonidos acá abajo provienen de criaturas. Algunos son... pensamientos. Y no todos son míos.
+
+Si sigues adelante, no confíes en lo que veas.
+
+— A`
+);
+
+NotesMap.set(
+  "fourth-note",
+  `Uri,
+
+Hoy vi mi reflejo en el agua. Me miró... y no era yo.
+
+Hay pasajes que se pliegan sobre sí mismos, y otros que parecen repetir lo que digo. Escuché mi voz llamándome desde un túnel que juraría haber cerrado detrás de mí. Cada vez que cierro los ojos, sueño con lugares que no recorrí, pero reconozco.
+
+No sé cuánto más voy a poder escribir. Mis manos tiemblan. No de miedo. De agotamiento. De algo más profundo.
+
+Sigo bajando. No por elección, sino porque ya no hay forma de subir. A veces me cuesta recordar por qué empecé esto. Pero tu nombre sigue apareciendo en mi mente, como un faro. Uri. Uri. Uri.
+
+Si llegas hasta acá, que no sea por mí. Que sea por ti.
+
+— A`
+);
+
+NotesMap.set(
+  "fifth-note",
+  `Uri,
+
+no qda mucho...
+el aire arde
+la luz ya no lga
+
+casi no siento los dds
+pero tenía que decirlo
+
+no vengas
+
+— A`
+);
