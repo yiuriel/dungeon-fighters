@@ -24,6 +24,7 @@ export class HealthManaPotion extends Item {
   }
 
   public use(player: Player): void {
+    this.scene.sound.play("pickup_potion");
     if (this.canUse(player)) {
       player.heal(this.healAmount);
 

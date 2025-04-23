@@ -234,9 +234,6 @@ export abstract class Player extends Phaser.Physics.Arcade.Sprite {
 
     const facing = this.facing;
     const knockbackDistance = 100;
-    const knockbackDuration = 200;
-
-    this.canMove = false;
 
     if (facing === "up") {
       this.setVelocityY(knockbackDistance);
@@ -247,13 +244,6 @@ export abstract class Player extends Phaser.Physics.Arcade.Sprite {
     } else if (facing === "right") {
       this.setVelocityX(-knockbackDistance);
     }
-
-    this.scene.time.delayedCall(knockbackDuration, () => {
-      if (this.active) {
-        this.setVelocity(0);
-        this.canMove = true;
-      }
-    });
   }
 
   getPrefix(): string {

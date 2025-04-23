@@ -37,6 +37,7 @@ export class Item extends Phaser.Physics.Arcade.Sprite {
   public use(_: Player): void {
     // Base implementation does nothing
     console.log(`Item of type ${this.itemType} used by player`);
+    this.scene.sound.play("pickup_item");
   }
 
   // Method to be overridden by child classes to determine if item can be used

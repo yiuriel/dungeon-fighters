@@ -29,6 +29,7 @@ export class Scepter extends Item {
   }
 
   use(player: Player): void {
+    super.use(player);
     // Apply damage multiplier
     player.setDamageMultiplier(this.damageMultiplier);
     player.setScepter(this);

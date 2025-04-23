@@ -21,6 +21,7 @@ export class ManaPotion extends Item {
   }
 
   public use(player: Player): void {
+    this.scene.sound.play("pickup_potion");
     if (this.canUse(player)) {
       if (player instanceof Mage) {
         player.regenerateMana(this.manaAmount);

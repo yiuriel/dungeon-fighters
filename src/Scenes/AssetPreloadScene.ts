@@ -158,15 +158,16 @@ export default class AssetPreloadScene extends Phaser.Scene {
     );
 
     // Load UI assets
-    this.load.spritesheet(
-      "fire_particle",
-      "assets/common/fire_particle.png",
-      {
-        frameWidth: 16,
-        frameHeight: 16,
-      }
-    );
+    this.load.spritesheet("fire_particle", "assets/common/fire_particle.png", {
+      frameWidth: 16,
+      frameHeight: 16,
+    });
     // load items finish
+
+    // load sounds
+    this.load.audio("pickup_item", "assets/sounds/pickup_item.wav");
+    this.load.audio("pickup_potion", "assets/sounds/pickup_potion.wav");
+    // load sounds finish
 
     console.log("Assets loaded");
   }

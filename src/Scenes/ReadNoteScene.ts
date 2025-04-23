@@ -12,8 +12,6 @@ export default class ReadNoteScene extends Phaser.Scene {
   constructor() {
     super("ReadNoteScene");
 
-    console.log("ReadNoteScene constructor");
-
     this.parentScene = undefined;
     this.readNote = undefined;
     this.sceneManager = new SceneManager(this);
@@ -26,8 +24,6 @@ export default class ReadNoteScene extends Phaser.Scene {
     parentScene: Phaser.Scene;
     onClose?: () => void;
   }) {
-    console.log("ReadNoteScene init", data);
-
     this.noteText = data.text;
     this.parentScene = data.parentScene;
     this.onCloseCallback = data.onClose;
@@ -39,8 +35,6 @@ export default class ReadNoteScene extends Phaser.Scene {
   }
 
   create() {
-    console.log("ReadNoteScene create");
-
     this.sceneManager.fadeIn(300);
 
     // Create the note
@@ -64,21 +58,17 @@ export default class ReadNoteScene extends Phaser.Scene {
   }
 
   private closeNote() {
-    console.log("ReadNoteScene closeNote");
+    // Resume the parent scene
+    if (this.parentScene) {
+      this.parentScene.scene.resume();
+    }
 
-    this.sceneManager.fadeOut(300).then(() => {
-      // Resume the parent scene
-      if (this.parentScene) {
-        this.parentScene.scene.resume();
-      }
+    // Call the callback if provided
+    if (this.onCloseCallback) {
+      this.onCloseCallback();
+    }
 
-      // Call the callback if provided
-      if (this.onCloseCallback) {
-        this.onCloseCallback();
-      }
-
-      // Destroy this scene
-      this.scene.stop();
-    });
+    // Destroy this scene
+    this.scene.stop();
   }
 }
