@@ -157,6 +157,21 @@ export default class AssetPreloadScene extends Phaser.Scene {
       }
     );
 
+    this.load.spritesheet("blood_1", "assets/common/blood_1.png", {
+      frameWidth: 16,
+      frameHeight: 16,
+    });
+
+    this.load.spritesheet("blood_2", "assets/common/blood_2.png", {
+      frameWidth: 32,
+      frameHeight: 32,
+    });
+
+    this.load.spritesheet("blood_3", "assets/common/blood_3.png", {
+      frameWidth: 32,
+      frameHeight: 32,
+    });
+
     // Load UI assets
     this.load.spritesheet("fire_particle", "assets/common/fire_particle.png", {
       frameWidth: 16,

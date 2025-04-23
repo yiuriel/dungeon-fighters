@@ -27,6 +27,7 @@ export class ColliderManager {
   private scepters: Phaser.Physics.Arcade.Group;
   private letters: Phaser.Physics.Arcade.Group;
   private stairsCollider?: Phaser.Physics.Arcade.Collider;
+  private currentLevel: number = 1;
 
   constructor(
     scene: Phaser.Scene,
@@ -39,7 +40,8 @@ export class ColliderManager {
     manaPotions: Phaser.Physics.Arcade.Group,
     healthManaPotions: Phaser.Physics.Arcade.Group,
     scepters: Phaser.Physics.Arcade.Group,
-    letters: Phaser.Physics.Arcade.Group
+    letters: Phaser.Physics.Arcade.Group,
+    currentLevel: number
   ) {
     this.scene = scene;
     this.mapGenerator = mapGenerator;
@@ -52,6 +54,7 @@ export class ColliderManager {
     this.healthManaPotions = healthManaPotions;
     this.scepters = scepters;
     this.letters = letters;
+    this.currentLevel = currentLevel;
   }
 
   /**
@@ -373,6 +376,7 @@ export class ColliderManager {
         onClose: () => {
           this.scene.scene.resume();
         },
+        bloody: this.currentLevel > 2 ? this.currentLevel * 5 : 0,
       });
       this.letters.clear(true, true);
     }

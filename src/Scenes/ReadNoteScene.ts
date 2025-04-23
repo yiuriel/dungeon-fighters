@@ -8,6 +8,7 @@ export default class ReadNoteScene extends Phaser.Scene {
   private sceneManager: SceneManager;
   private noteText: string;
   private onCloseCallback?: () => void;
+  private bloody: number = 0;
 
   constructor() {
     super("ReadNoteScene");
@@ -23,10 +24,12 @@ export default class ReadNoteScene extends Phaser.Scene {
     text: string;
     parentScene: Phaser.Scene;
     onClose?: () => void;
+    bloody?: number;
   }) {
     this.noteText = data.text;
     this.parentScene = data.parentScene;
     this.onCloseCallback = data.onClose;
+    this.bloody = data.bloody || 0;
 
     // Pause the parent scene
     if (this.parentScene) {
@@ -38,9 +41,14 @@ export default class ReadNoteScene extends Phaser.Scene {
     this.sceneManager.fadeIn(300);
 
     // Create the note
-    this.readNote = new ReadNote(this, this.noteText, () => {
-      this.closeNote();
-    });
+    this.readNote = new ReadNote(
+      this,
+      this.noteText,
+      () => {
+        this.closeNote();
+      },
+      this.bloody
+    );
 
     // Show the note
     if (this.readNote) {

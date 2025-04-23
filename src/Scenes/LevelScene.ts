@@ -222,7 +222,8 @@ export default class LevelScene extends Phaser.Scene {
       this.manaPotions,
       this.healthManaPotions,
       this.scepters,
-      this.letters
+      this.letters,
+      this.currentLevel
     );
 
     this.colliderManager.setupCollisions();
