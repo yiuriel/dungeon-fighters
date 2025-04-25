@@ -190,6 +190,7 @@ export default class LevelScene extends Phaser.Scene {
 
     this.events.on("playerDied", () => {
       this.time.delayedCall(1000, () => {
+        this.sound.stopAll();
         this.scene.stop();
         this.scene.start("StartScreenScene");
       });
@@ -251,6 +252,8 @@ export default class LevelScene extends Phaser.Scene {
         this.prepareLevel();
       });
     }
+
+    this.sound.play("background_loop_01", { loop: true, volume: 0.5 });
   }
 
   async update() {

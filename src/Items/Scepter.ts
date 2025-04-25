@@ -10,17 +10,18 @@ export class Scepter extends Item {
   private powerUpBar: Phaser.GameObjects.Graphics | null = null;
   private multiplierText: Phaser.GameObjects.Text | null = null;
   private damageMultiplier: number;
+  private frameNumber: number;
 
   constructor(scene: Phaser.Scene, x: number, y: number) {
     super(scene, x, y, "scepter", ItemType.SCEPTER);
-    const frame = Phaser.Math.Between(0, 4);
-    this.setFrame(frame);
+    this.frameNumber = Phaser.Math.Between(0, 4);
+    this.setFrame(this.frameNumber);
 
     // Calculate damage multiplier based on frame (lerp from 1.1 to 1.5)
     this.damageMultiplier = Phaser.Math.Linear(
       Scepter.MIN_DAMAGE_MULTIPLIER,
       Scepter.MAX_DAMAGE_MULTIPLIER,
-      frame / 4
+      this.frameNumber / 4
     );
   }
 
@@ -29,7 +30,8 @@ export class Scepter extends Item {
   }
 
   use(player: Player): void {
-    super.use(player);
+    // Play sound
+    this.scene.sound.play(`scepter_${this.frameNumber + 1}`);
     // Apply damage multiplier
     player.setDamageMultiplier(this.damageMultiplier);
     player.setScepter(this);

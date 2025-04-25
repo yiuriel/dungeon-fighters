@@ -23,6 +23,8 @@ export class Letter extends Item {
   }
 
   public collect(): NoteId {
+    // Play sound
+    this.scene.sound.play("letter_collect");
     this.destroy();
     return this.noteId;
   }

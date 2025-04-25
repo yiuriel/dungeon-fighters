@@ -310,6 +310,10 @@ export class ColliderManager {
         spell.anims.currentAnim?.key === spell.getStartAnimationKey() ||
         spell.anims.currentAnim?.key === spell.getIdleAnimationKey()
       ) {
+        // If player is a FireMage and has a fire shield cooldown, skip damage
+        if (player instanceof FireMage && player.getFireShieldCooldown()) {
+          return;
+        }
         player.takeDamage(
           spell.getDamage(),
           new Status(this.scene, player, "venom", 5, 2000, 1000, () => {

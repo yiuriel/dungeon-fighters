@@ -182,6 +182,33 @@ export default class AssetPreloadScene extends Phaser.Scene {
     // load sounds
     this.load.audio("pickup_item", "assets/sounds/pickup_item.wav");
     this.load.audio("pickup_potion", "assets/sounds/pickup_potion.wav");
+
+    this.load.audio("potion_1", "assets/sounds/potions/potion_1.mp3");
+    this.load.audio("potion_2", "assets/sounds/potions/potion_2.mp3");
+    this.load.audio("potion_3", "assets/sounds/potions/potion_3.mp3");
+    this.load.audio("potion_4", "assets/sounds/potions/potion_4.mp3");
+    this.load.audio("scepter_1", "assets/sounds/scepter/scepter_pickup_1.mp3");
+    this.load.audio("scepter_2", "assets/sounds/scepter/scepter_pickup_2.mp3");
+    this.load.audio("scepter_3", "assets/sounds/scepter/scepter_pickup_3.mp3");
+    this.load.audio("scepter_4", "assets/sounds/scepter/scepter_pickup_4.mp3");
+    this.load.audio("scepter_5", "assets/sounds/scepter/scepter_pickup_5.mp3");
+
+    // spells
+    this.load.audio("fireball", "assets/sounds/spells/fireball.mp3");
+    this.load.audio("fireorb", "assets/sounds/spells/fireorb.mp3");
+    this.load.audio("teleport", "assets/sounds/spells/teleport.mp3");
+
+    // background
+    this.load.audio(
+      "background_loop_01",
+      "public/assets/sounds/background/background_loop_1.wav"
+    );
+
+    // letter collect
+    this.load.audio(
+      "letter_collect",
+      "assets/sounds/letter/letter_collect.mp3"
+    );
     // load sounds finish
 
     console.log("Assets loaded");

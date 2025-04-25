@@ -25,6 +25,9 @@ export class FireMageFireCircle extends Phaser.Physics.Arcade.Sprite {
 
     this.createAnimations();
 
+    // Play sound
+    this.scene.sound.play("fireball");
+
     this.play(this.getStartAnimationKey()).once("animationcomplete", () => {
       this.play({
         key: this.getActiveAnimationKey(),

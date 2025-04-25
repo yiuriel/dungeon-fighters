@@ -61,6 +61,9 @@ export class FireMageFireOrb extends Phaser.Physics.Arcade.Sprite {
       }
     }
 
+    // Play sound
+    this.scene.sound.play("fireorb");
+
     // Add fire particles
     const particles = scene.add.particles(0, 0, texture, {
       alpha: { start: 1, end: 0 },

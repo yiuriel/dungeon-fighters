@@ -108,6 +108,9 @@ export class MageTeleportSpell extends Phaser.Physics.Arcade.Sprite {
     this.scene.add.existing(this);
     this.scene.physics.add.existing(this);
 
+    // Play sound
+    this.scene.sound.play("teleport");
+
     // Set size and depth to appear above other sprites
     this.setScale(0.75);
     this.setOffset(32, 32);

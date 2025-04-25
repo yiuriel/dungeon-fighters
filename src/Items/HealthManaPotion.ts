@@ -9,22 +9,24 @@ export class HealthManaPotion extends Item {
   private manaAmount: number;
   private readonly baseHealAmount: number = 5;
   private readonly baseManaAmount: number = 5;
+  private readonly frameNumber: number;
 
   constructor(scene: Phaser.Scene, x: number, y: number) {
     // Use purple potion frames (8-11)
-    const frame = Phaser.Math.Between(8, 10);
     super(scene, x, y, "potions", ItemType.POTION);
+    this.frameNumber = Phaser.Math.Between(8, 10);
 
     // Calculate amounts based on frame (larger frame = more healing and mana)
-    this.healAmount = this.baseHealAmount + Math.floor(frame * 1.5);
-    this.manaAmount = this.baseManaAmount + Math.floor(frame * 2);
+    this.healAmount = this.baseHealAmount + Math.floor(this.frameNumber * 1.5);
+    this.manaAmount = this.baseManaAmount + Math.floor(this.frameNumber * 2);
 
     // Set the specific frame from the potions spritesheet
-    this.setFrame(frame);
+    this.setFrame(this.frameNumber);
   }
 
   public use(player: Player): void {
-    this.scene.sound.play("pickup_potion");
+    const frameNumber = this.frameNumber - 7;
+    this.scene.sound.play(`potion_${frameNumber}`);
     if (this.canUse(player)) {
       player.heal(this.healAmount);
 

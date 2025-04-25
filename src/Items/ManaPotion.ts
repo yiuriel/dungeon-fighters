@@ -7,21 +7,22 @@ import { FireMage } from "../Players/FireMage";
 export class ManaPotion extends Item {
   private manaAmount: number;
   private readonly baseManaAmount: number = 10;
+  private readonly frameNumber: number;
 
   constructor(scene: Phaser.Scene, x: number, y: number) {
     // Randomly select a potion frame between 0-3 (blue potions)
-    const frame = Phaser.Math.Between(0, 3);
     super(scene, x, y, "potions", ItemType.POTION);
+    this.frameNumber = Phaser.Math.Between(0, 3);
 
     // Calculate mana amount based on frame (larger frame = more mana)
-    this.manaAmount = this.baseManaAmount + Math.floor(frame * 3);
+    this.manaAmount = this.baseManaAmount + Math.floor(this.frameNumber * 3);
 
     // Set the specific frame from the potions spritesheet
-    this.setFrame(frame);
+    this.setFrame(this.frameNumber);
   }
 
   public use(player: Player): void {
-    this.scene.sound.play("pickup_potion");
+    this.scene.sound.play(`potion_${this.frameNumber + 1}`);
     if (this.canUse(player)) {
       if (player instanceof Mage) {
         player.regenerateMana(this.manaAmount);
