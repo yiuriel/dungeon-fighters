@@ -17,6 +17,7 @@ import { Letter } from "../Items/Letter";
 import { ReadNote } from "../Graphics/ReadNote";
 import { SceneManager } from "../helpers/SceneManager";
 import { ColliderManager } from "../Managers/ColliderManager";
+import { gameRegistryManager } from "../GameRegistryManager";
 
 export default class LevelScene extends Phaser.Scene {
   private players!: Phaser.Physics.Arcade.Group;
@@ -255,6 +256,14 @@ export default class LevelScene extends Phaser.Scene {
   async update() {
     if (!this.readNote) {
       return;
+    }
+
+    if (
+      this.currentLevel === gameRegistryManager.get("last_history_level") &&
+      !gameRegistryManager.get("keep_playing_after_end")
+    ) {
+      this.scene.pause();
+      this.scene.launch("EndGameScene");
     }
 
     if (

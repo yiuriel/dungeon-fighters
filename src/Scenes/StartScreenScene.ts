@@ -12,6 +12,12 @@ export default class StartScreenScene extends Phaser.Scene {
   private sceneManager: SceneManager;
   private characterButtons: { [key: string]: Phaser.GameObjects.Container } =
     {};
+  private characterKeys: string[] = [];
+  private currentCharacterIndex: number = 0;
+  private gamepadConnected: boolean = false;
+  private leftThumbstickInUse: boolean = false;
+  private dpadLeftInUse: boolean = false;
+  private dpadRightInUse: boolean = false;
 
   constructor() {
     super("StartScreenScene");
@@ -53,7 +59,10 @@ export default class StartScreenScene extends Phaser.Scene {
     this.createControlsUI(WINDOW_CENTER.x, 450);
 
     // Create animated start button - moved down to avoid overlap
-    this.createStartButton(WINDOW_CENTER.x, 600);
+    this.createStartButton(WINDOW_CENTER.x, 650);
+
+    // Initialize gamepad support
+    this.setupGamepadSupport();
   }
 
   /**
@@ -253,26 +262,7 @@ export default class StartScreenScene extends Phaser.Scene {
       button.lineStyle(2, 0x4287f5);
       button.strokeRoundedRect(-150, -40, 300, 80, 16);
 
-      // Create particle burst effect using correct constructor pattern
-      const particles = this.add.particles(x, y, "fire_particle", {
-        speed: { min: 100, max: 200 },
-        scale: { start: 0.6, end: 0 },
-        angle: { min: 0, max: 360 },
-        lifespan: 800,
-        quantity: 20,
-        blendMode: Phaser.BlendModes.ADD,
-        tint: 0x4287f5,
-        emitting: false,
-      });
-
-      // Explode once
-      particles.explode(20, x, y);
-
-      // Handle scene transition
-      this.sceneManager.fadeOut().then(() => {
-        particles.destroy();
-        this.scene.start("LevelScene");
-      });
+      this.startGame();
     });
   }
 
@@ -286,9 +276,9 @@ export default class StartScreenScene extends Phaser.Scene {
     // Create glass panel effect
     const panel = this.add.graphics();
     panel.fillStyle(0x000000, 0.6);
-    panel.fillRoundedRect(-250, -30, 500, 110, 10);
+    panel.fillRoundedRect(-250, -30, 500, 170, 10); // Increased height for gamepad controls
     panel.lineStyle(2, 0x3366ff, 0.5);
-    panel.strokeRoundedRect(-250, -30, 500, 110, 10);
+    panel.strokeRoundedRect(-250, -30, 500, 170, 10); // Increased height for gamepad controls
 
     // Controls title with icon
     this.add
@@ -308,6 +298,10 @@ export default class StartScreenScene extends Phaser.Scene {
     // Create modern keys display (these are now added directly to the scene, not to the container)
     this.createKeyDisplay(x - 150, y + 30, "Movement", "ARROW KEYS");
     this.createKeyDisplay(x + 100, y + 30, "Actions", "Z, X, C");
+
+    // Add gamepad controls display
+    this.createKeyDisplay(x - 150, y + 100, "Gamepad", "D-PAD / STICK");
+    this.createKeyDisplay(x + 100, y + 100, "Select/Start", "A / START");
 
     // Character-specific controls text
     this.selectedCharacterButtonText = this.add
@@ -589,5 +583,140 @@ export default class StartScreenScene extends Phaser.Scene {
     }
 
     return container;
+  }
+
+  /**
+   * Setup gamepad support for character selection and game start
+   */
+  private setupGamepadSupport() {
+    // Store character keys for navigation
+    this.characterKeys = Object.keys(this.characterButtons);
+
+    // Set initial selected character index
+    const savedCharacter = localStorage.getItem("selectedCharacter");
+    if (savedCharacter) {
+      this.currentCharacterIndex = this.characterKeys.indexOf(savedCharacter);
+      if (this.currentCharacterIndex === -1) this.currentCharacterIndex = 0;
+    }
+
+    // Add gamepad detection
+    this.input.gamepad?.on("connected", (pad: Phaser.Input.Gamepad.Gamepad) => {
+      this.gamepadConnected = true;
+      console.log("Gamepad connected:", pad.id);
+    });
+
+    this.input.gamepad?.on("disconnected", () => {
+      this.gamepadConnected = false;
+      console.log("Gamepad disconnected");
+    });
+
+    // Add update event for gamepad controls
+    this.events.on("update", this.updateGamepadInput, this);
+  }
+
+  /**
+   * Handle gamepad input for character selection and game start
+   */
+  private updateGamepadInput() {
+    if (!this.gamepadConnected || !this.input.gamepad?.total) return;
+
+    const pad = this.input.gamepad.getPad(0);
+    if (!pad) return;
+
+    // Handle left/right movement for character selection
+    const leftThumbstickX = pad.axes[0].getValue();
+    const dpadLeft = pad.buttons[14].value;
+    const dpadRight = pad.buttons[15].value;
+
+    // Handle analog stick movement
+    if (leftThumbstickX < -0.5 && !this.leftThumbstickInUse) {
+      this.leftThumbstickInUse = true;
+      this.navigateCharacterSelection("left");
+    } else if (leftThumbstickX > 0.5 && !this.leftThumbstickInUse) {
+      this.leftThumbstickInUse = true;
+      this.navigateCharacterSelection("right");
+    } else if (leftThumbstickX > -0.3 && leftThumbstickX < 0.3) {
+      this.leftThumbstickInUse = false;
+    }
+
+    // Handle D-pad movement
+    if (dpadLeft && !this.dpadLeftInUse) {
+      this.dpadLeftInUse = true;
+      this.navigateCharacterSelection("left");
+    } else if (!dpadLeft) {
+      this.dpadLeftInUse = false;
+    }
+
+    if (dpadRight && !this.dpadRightInUse) {
+      this.dpadRightInUse = true;
+      this.navigateCharacterSelection("right");
+    } else if (!dpadRight) {
+      this.dpadRightInUse = false;
+    }
+
+    // Handle start button or A button press to start game
+    if (pad.buttons[0].value || pad.buttons[9].value) {
+      // A button or Start button
+      this.startGame();
+    }
+  }
+
+  /**
+   * Navigate between character options using gamepad
+   */
+  private navigateCharacterSelection(direction: "left" | "right") {
+    if (direction === "left") {
+      this.currentCharacterIndex--;
+      if (this.currentCharacterIndex < 0)
+        this.currentCharacterIndex = this.characterKeys.length - 1;
+    } else {
+      this.currentCharacterIndex++;
+      if (this.currentCharacterIndex >= this.characterKeys.length)
+        this.currentCharacterIndex = 0;
+    }
+
+    const selectedKey = this.characterKeys[this.currentCharacterIndex];
+
+    // Simulate a button click to trigger the selection
+    const container = this.characterButtons[selectedKey];
+    const clickEvent = container.eventNames().includes("pointerdown")
+      ? "pointerdown"
+      : null;
+
+    if (clickEvent) {
+      container.emit(clickEvent);
+    }
+  }
+
+  /**
+   * Start the game - reused by both click and gamepad events
+   */
+  private startGame() {
+    // Create particle burst effect
+    const buttonPos = { x: WINDOW_CENTER.x, y: 600 };
+    const particles = this.add.particles(
+      buttonPos.x,
+      buttonPos.y,
+      "fire_particle",
+      {
+        speed: { min: 100, max: 200 },
+        scale: { start: 0.6, end: 0 },
+        angle: { min: 0, max: 360 },
+        lifespan: 800,
+        quantity: 20,
+        blendMode: Phaser.BlendModes.ADD,
+        tint: 0x4287f5,
+        emitting: false,
+      }
+    );
+
+    // Explode once
+    particles.explode(20, buttonPos.x, buttonPos.y);
+
+    // Handle scene transition
+    this.sceneManager.fadeOut().then(() => {
+      particles.destroy();
+      this.scene.start("LevelScene");
+    });
   }
 }

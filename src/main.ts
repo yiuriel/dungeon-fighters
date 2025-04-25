@@ -4,12 +4,19 @@ import AssetPreloadScene from "./Scenes/AssetPreloadScene";
 import LevelScene from "./Scenes/LevelScene";
 import StartScreenScene from "./Scenes/StartScreenScene";
 import ReadNoteScene from "./Scenes/ReadNoteScene";
+import EndGameScene from "./Scenes/EndGameScene";
 
 const config: Phaser.Types.Core.GameConfig = {
   type: Phaser.AUTO,
   width: WINDOW_WIDTH,
   height: WINDOW_HEIGHT,
-  scene: [AssetPreloadScene, StartScreenScene, LevelScene, ReadNoteScene],
+  scene: [
+    AssetPreloadScene,
+    StartScreenScene,
+    LevelScene,
+    ReadNoteScene,
+    EndGameScene,
+  ],
   physics: {
     default: "arcade",
     arcade: {
