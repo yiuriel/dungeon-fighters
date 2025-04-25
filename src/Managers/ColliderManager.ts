@@ -376,7 +376,8 @@ export class ColliderManager {
         onClose: () => {
           this.scene.scene.resume();
         },
-        bloody: this.currentLevel > 2 ? this.currentLevel * 5 : 0,
+        bloody:
+          this.currentLevel > 2 ? this.currentLevel * this.currentLevel : 0,
       });
       this.letters.clear(true, true);
     }
