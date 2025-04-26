@@ -18,9 +18,11 @@ import { ReadNote } from "../Graphics/ReadNote";
 import { SceneManager } from "../helpers/SceneManager";
 import { ColliderManager } from "../Managers/ColliderManager";
 import { gameRegistryManager } from "../GameRegistryManager";
+import { PlayerFriend } from "../Players/PlayerFriend";
 
 export default class LevelScene extends Phaser.Scene {
   private players!: Phaser.Physics.Arcade.Group;
+  private playerFriend!: PlayerFriend;
   private enemies!: Phaser.Physics.Arcade.Group;
   private overlapSpells!: Phaser.Physics.Arcade.Group;
   private collideSpells!: Phaser.Physics.Arcade.Group;
@@ -83,6 +85,13 @@ export default class LevelScene extends Phaser.Scene {
     }
     this.players.add(player);
     this.player = player;
+
+    // Create player friend
+    if (this.currentLevel === gameRegistryManager.get("ghost_level_appears")) {
+      const { x: xFriend, y: yFriend } =
+        this.mapGenerator.getRandomNonRoomPosition();
+      this.playerFriend = new PlayerFriend(this, xFriend, yFriend, player);
+    }
 
     // Shake camera effect
     this.cameras.main.shake(
@@ -225,6 +234,7 @@ export default class LevelScene extends Phaser.Scene {
       this.healthManaPotions,
       this.scepters,
       this.letters,
+      this.playerFriend,
       this.currentLevel
     );
 
@@ -289,6 +299,10 @@ export default class LevelScene extends Phaser.Scene {
           }
         }
       );
+    }
+
+    if (this.playerFriend) {
+      this.playerFriend.update();
     }
 
     // Update players

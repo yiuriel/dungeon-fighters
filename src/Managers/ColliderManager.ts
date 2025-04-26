@@ -13,6 +13,8 @@ import { Letter } from "../Items/Letter";
 import { Status } from "../Common/Status";
 import { FireMage } from "../Players/FireMage";
 import { NotesMap } from "../Common/NoteMap";
+import { PlayerFriend } from "../Players/PlayerFriend";
+import { gameRegistryManager } from "../GameRegistryManager";
 
 export class ColliderManager {
   private scene: Phaser.Scene;
@@ -26,6 +28,7 @@ export class ColliderManager {
   private healthManaPotions: Phaser.Physics.Arcade.Group;
   private scepters: Phaser.Physics.Arcade.Group;
   private letters: Phaser.Physics.Arcade.Group;
+  private playerFriend: Phaser.Physics.Arcade.Sprite;
   private stairsCollider?: Phaser.Physics.Arcade.Collider;
   private currentLevel: number = 1;
 
@@ -41,6 +44,7 @@ export class ColliderManager {
     healthManaPotions: Phaser.Physics.Arcade.Group,
     scepters: Phaser.Physics.Arcade.Group,
     letters: Phaser.Physics.Arcade.Group,
+    playerFriend: Phaser.Physics.Arcade.Sprite,
     currentLevel: number
   ) {
     this.scene = scene;
@@ -54,6 +58,7 @@ export class ColliderManager {
     this.healthManaPotions = healthManaPotions;
     this.scepters = scepters;
     this.letters = letters;
+    this.playerFriend = playerFriend;
     this.currentLevel = currentLevel;
   }
 
@@ -160,6 +165,15 @@ export class ColliderManager {
       this.letters,
       this.players,
       this.handleLetterPickup,
+      undefined,
+      this
+    );
+
+    // Set up player friend
+    this.scene.physics.add.overlap(
+      this.players,
+      this.playerFriend,
+      this.handlePlayerFriendPickup,
       undefined,
       this
     );
@@ -384,6 +398,30 @@ export class ColliderManager {
           this.currentLevel > 2 ? this.currentLevel * this.currentLevel : 0,
       });
       this.letters.clear(true, true);
+    }
+  }
+
+  /**
+   * Handle player friend pickup
+   * @param player Player object
+   * @param playerFriend PlayerFriend object
+   */
+  private handlePlayerFriendPickup(playerFriend: any, player: any) {
+    if (
+      player instanceof Player &&
+      playerFriend instanceof PlayerFriend &&
+      !gameRegistryManager.get("ghost_find_player")
+    ) {
+      gameRegistryManager.set("ghost_find_player", true);
+      this.scene.scene.pause();
+      this.scene.scene.launch("ReadNoteScene", {
+        text: NotesMap.get("ghost_find_player") || "",
+        parentScene: this.scene,
+        onClose: () => {
+          playerFriend.fadeToDeath();
+          this.scene.scene.resume();
+        },
+      });
     }
   }
 }

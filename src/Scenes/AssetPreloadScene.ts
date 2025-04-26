@@ -64,6 +64,11 @@ export default class AssetPreloadScene extends Phaser.Scene {
       frameWidth: 24,
       frameHeight: 32,
     });
+
+    this.load.spritesheet("player_friend", "assets/players/player_friend.png", {
+      frameWidth: 24,
+      frameHeight: 32,
+    });
     // load enemies and players finish
 
     // load spells
@@ -176,6 +181,10 @@ export default class AssetPreloadScene extends Phaser.Scene {
     this.load.spritesheet("fire_particle", "assets/common/fire_particle.png", {
       frameWidth: 16,
       frameHeight: 16,
+    });
+    this.load.spritesheet("flares", "assets/particles/flares.png", {
+      frameWidth: 32,
+      frameHeight: 32,
     });
     // load items finish
 

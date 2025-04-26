@@ -3,7 +3,8 @@ export type NoteId =
   | "second-note"
   | "third-note"
   | "fourth-note"
-  | "fifth-note";
+  | "fifth-note"
+  | "ghost_find_player";
 
 export const NotesMap = new Map<NoteId, string>();
 
@@ -80,4 +81,20 @@ pero tenía que decirlo
 no vengas
 
 — A`
+);
+
+NotesMap.set(
+  "ghost_find_player",
+  `Uri,
+Tarde, como siempre...
+
+No sabes cuánto esperé este momento.
+
+No para pedirte nada. No para reprocharte.
+
+Sólo... para verte una última vez.
+
+Me voy, hermano.
+
+Esta vez, de verdad.`
 );

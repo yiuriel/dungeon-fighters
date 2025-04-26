@@ -1,4 +1,8 @@
-export type GameRegistryKey = "keep_playing_after_end" | "last_history_level";
+export type GameRegistryKey =
+  | "keep_playing_after_end"
+  | "last_history_level"
+  | "ghost_find_player"
+  | "ghost_level_appears";
 
 export class GameRegistryManager {
   private static instance: GameRegistryManager;
@@ -35,4 +39,6 @@ export class GameRegistryManager {
 }
 
 export const gameRegistryManager = GameRegistryManager.getInstance();
-gameRegistryManager.set("last_history_level", 5);
+gameRegistryManager.set("last_history_level", 6);
+gameRegistryManager.set("ghost_find_player", false);
+gameRegistryManager.set("ghost_level_appears", 5);
