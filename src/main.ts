@@ -21,10 +21,10 @@ const config: Phaser.Types.Core.GameConfig = {
     default: "arcade",
     arcade: {
       gravity: { y: 0, x: 0 },
-      debug: true,
-      debugShowBody: true,
-      debugShowVelocity: true,
-      debugBodyColor: 0xff0000, // red
+      // debug: true,
+      // debugShowBody: true,
+      // debugShowVelocity: true,
+      // debugBodyColor: 0xff0000, // red
     },
   },
   pixelArt: true,

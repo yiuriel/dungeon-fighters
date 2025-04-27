@@ -255,6 +255,7 @@ export default class StartScreenScene extends Phaser.Scene {
     });
 
     buttonContainer.on("pointerdown", () => {
+      this.sound.play("game_start_sound", { volume: 0.35 });
       // Add press effect
       button.clear();
       button.fillGradientStyle(0x2463bd, 0x2463bd, 0x1a4d94, 0x1a4d94, 1);
@@ -505,6 +506,7 @@ export default class StartScreenScene extends Phaser.Scene {
     });
 
     container.on("pointerdown", () => {
+      this.sound.play("character_choose_sound", { volume: 0.5 });
       // Reset all other character buttons
       Object.keys(this.characterButtons).forEach((key) => {
         if (key !== spriteKey) {

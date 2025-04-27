@@ -207,6 +207,16 @@ export default class AssetPreloadScene extends Phaser.Scene {
     this.load.audio("fireorb", "assets/sounds/spells/fireorb.mp3");
     this.load.audio("teleport", "assets/sounds/spells/teleport.mp3");
 
+    // UI
+    this.load.audio(
+      "game_start_sound",
+      "assets/sounds/UI/game_start_sound.wav"
+    );
+    this.load.audio(
+      "character_choose_sound",
+      "assets/sounds/UI/character_choose_sound.wav"
+    );
+
     // background
     this.load.audio(
       "background_loop_01",
@@ -224,6 +234,8 @@ export default class AssetPreloadScene extends Phaser.Scene {
   }
 
   create() {
+    console.log("Assets loaded");
+
     this.scene.start("StartScreenScene");
   }
 }

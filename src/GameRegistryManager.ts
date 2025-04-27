@@ -39,6 +39,6 @@ export class GameRegistryManager {
 }
 
 export const gameRegistryManager = GameRegistryManager.getInstance();
-gameRegistryManager.set("last_history_level", 6);
+gameRegistryManager.set("last_history_level", 7);
 gameRegistryManager.set("ghost_find_player", false);
-gameRegistryManager.set("ghost_level_appears", 5);
+gameRegistryManager.set("ghost_level_appears", 6);
