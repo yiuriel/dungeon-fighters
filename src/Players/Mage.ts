@@ -13,13 +13,13 @@ export class Mage extends Player {
   private castSpellKey: Phaser.Input.Keyboard.Key;
   private castSpellCooldown: boolean = false;
   private castSpellLifespan: number = 1000;
-  private castSpellDamage: number = 20;
+  private castSpellDamage: number = 25;
   private castSpellManaCost: number = 10;
 
   private projectileSpellKey: Phaser.Input.Keyboard.Key;
   private projectileSpellCooldown: boolean = false;
   private projectileSpellLifespan: number = 750;
-  private projectileSpellDamage: number = 30;
+  private projectileSpellDamage: number = 40;
   private projectileSpellManaCost: number = 18;
   private projectileSpellLaunchCallback: (spell: MageProjectileSpell) => void =
     () => {};
