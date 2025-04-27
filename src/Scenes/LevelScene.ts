@@ -57,7 +57,7 @@ export default class LevelScene extends Phaser.Scene {
     this.levelFinishCooldown = false;
     this.levelTransitionCooldown = false;
 
-    this.physics.world.drawDebug = true;
+    // this.physics.world.drawDebug = true;
 
     // Create a simple bounded area with walls
     this.mapGenerator.generateMap();
