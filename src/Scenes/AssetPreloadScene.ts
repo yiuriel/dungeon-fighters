@@ -210,7 +210,7 @@ export default class AssetPreloadScene extends Phaser.Scene {
     // background
     this.load.audio(
       "background_loop_01",
-      "public/assets/sounds/background/background_loop_1.wav"
+      "assets/sounds/background/background_loop_1.wav"
     );
 
     // letter collect

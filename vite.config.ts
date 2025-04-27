@@ -2,6 +2,6 @@
 import { defineConfig } from "vite";
 
 export default defineConfig({
-  base: "/dungeon-fighters/", // Replace with your repository name
+  base: "/first-light/", // Replace with your repository name
   // ...other config
 });
